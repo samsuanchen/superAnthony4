@@ -2,7 +2,7 @@
 function drawAnthony(time){
 	drawBackground();
 	setOrigin([0, 2, -30]);
-	var t = (1 - Math.cos(time * parseInt(iSpeed.value))) / 2;
+	var t = (1 - Math.cos(time)) / 2;
 	var act = iFile.value, b = actions[act];
 	var m = act.match(/(\D+)(\d+)$/), e = b;
 	if( m ){
@@ -134,6 +134,7 @@ function drawScene() {
 	}
 	lastTime = time; 
 	time -= delayTime;
+	time *= parseInt(iSpeed.value);
 	drawAnthony(time);
 }
 function animate(){
