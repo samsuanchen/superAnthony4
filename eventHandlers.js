@@ -22,7 +22,7 @@ function save(key){
 }
 function load(key){
 	if( ! key ) key = iFile.value;
-	else if( iFile.value != key ) iFile.value = key
+	else iFile.value = key;
 	key = key || iFile.value;
 	var json = JSON.parse(localStorage.getItem("anthony4_"+key));
 	for(var id in json){
