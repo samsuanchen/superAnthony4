@@ -1,17 +1,11 @@
 // eventHandlers.js @ https://github.com/samsuanchen/superAnthony3
 function backup(){ // in js console, paste the output to inport more actions
-	actionButtons=document.getElementsByClassName('action');
-	out=['in js console, paste the following to inport more actions'];
-	for(i=0;i<actionButtons.length;i++){
-		key="anthony4_"+actionButtons[i].innerHTML.trim();
-		out.push('localStorage.setItem("'+key+'",'
-					+JSON.stringify(localStorage.getItem(key))
-					 .replace(/^"|"$/g,"'")
-					 .replace(/\\"/g,'"')
-					 .replace(/"([0-9-]+)"/g,'$1')
-					+")");
-	}
-	console.log(out.join('\n'));
+	for(act in actions)
+		console.log('localStorage.setItem(`anthony4_'
+			+ act + '`,`'
+			+ localStorage.getItem('anthony4_站0').replace(/"(\d+)"/g,'$1')
+			+ '`);'
+		);
 }
 function save(key){
 	key = key || iFile.value;

@@ -134,6 +134,7 @@ function drawScene() {
 		return;
 	var time = new Date().getTime() / 1000;
 	var d = parseInt( iDirect.value );
+	const PI = Math.PI / parseInt( iSpeed.value );
 //	if( d < 0 )
 //		console.log('d < 0');
 	if( ! delayTime ){
@@ -146,21 +147,23 @@ function drawScene() {
 		if( ! actions[n1] ) return;
 	} // else console.log( 'delayTime', delayTime );
 	time -= delayTime;
-	if( time > Math.PI ){
-	//	if( d < 0 )
-	//		console.log('d < 0');
+	if( time > PI ){
+		if( d < 0 )
+			console.log('d < 0');
 		time -= Math.PI;
 		delayTime += Math.PI;
 		iFile.value = n1;
 		var m = n1.match(/(\D+)(\d+)/);
 		var n = m[1], i = parseInt( m[2] ) + d;
+		if( i<0 )
+			console.log('i<0');
 		n2 = n+i;
 		if( actions[n2] )
 			iIndex.value = i;
 		else
 			iDirect.value = - d;
 	}
-//	console.log('名',iFile.value,'向',iDirect.value,'時',time);
+	console.log('名',iFile.value,'向',iDirect.value,'時',time,delayTime);
 	time *= parseInt(iSpeed.value);
 	drawAnthony(time);
 }
