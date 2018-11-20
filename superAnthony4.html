@@ -18,34 +18,12 @@
 	<button onclick="load()">讀</button>
 <div id='myList'>
 </div>
-	<script>
-	var actions = {};
-	function preloadState(){
-		var p = /^anthony4_((\D+)\d*)/, L = {};
-		myList.innerHTML = Object.keys(localStorage)
-			.filter( k => {
-				var m = k.match(p), f = false;
-				if(m) {
-					if(! L[m[2]]) f = true, L[m[2]] = true;
-					var act = m[1];
-					var action = JSON.parse( localStorage.getItem( m[0] ) );
-					for( var a in action ) action[a] = parseInt( action[a] );
-					actions[act] = action;
-				}
-				return f;
-			})
-			.map( k => {
-				var m = k.match(p), n = m[2];
-				return '<button onclick="load(&quot;' + n + '0&quot;)" class="action">' + n + '</a>'
-			}).join(' ')
-	}
-	preloadState();
-	</script>
 <button id="bBgn"  onclick="toPrev()">前</button>
 	<button id="bEnd"  onclick="toNext()">後</button>
 	步進 <input  id="iDelta" value="10" class="number">
 	<button id="bAuto" onclick="toAuto()">自動</button>
 	速 <input id="iSpeed" value="1" class="number">
+	<input id="bPrint" type="radio">印
 <table><tr><td>00 Y</td><td>腰﹍
 	   <button id="bDecAng0" onclick="decVal()">-</button>
 	   <input  id="iValAng0" value="0" class="number" onpaste="toChangeVal()" onkeyup="toKeyinVal()">
@@ -143,6 +121,7 @@
 	起 <input  id="iValMin15" value="0" class="number" onchange="toChangeVal()">
 	迄 <input  id="iValMax15" value="0" class="number" onchange="toChangeVal()">
 </td></tr></table>
+<script src="preload.js"></script>
 <script src="glMatrix-0.9.5.js"></script>
 <script src="webgl-utils.js"></script>
 <script src="cube.js"></script>

@@ -1,13 +1,17 @@
 // superAnthony.js @ https://github.com/samsuanchen/superAnthony3
-function drawAnthony(time){
+function d3( i ) {
+	return i.toString().substr( 0, 5 );
+}
+function drawAnthony( time, n0, n1 ){
 	drawBackground();
-	setOrigin([0, 2, -30]);
-	var t = (1 - Math.cos(time)) / 2;
-	var act = iFile.value, b = actions[act];
-	var m = act.match(/(\D+)(\d+)$/), e = b;
-	if( m ){
-		e = actions[m[1]+( parseInt(m[2]) + 1 )] || b;
-	}
+	setOrigin( [0, 2, -30] );
+	time = time || 0;
+	n0 = n0 || iFile.value;
+	n1 = n1 || n0;
+	if( bPrint.checked ) console.log( d3( time ), n0, n1 );
+	var t = ( 1 - Math.cos( time ) ) / 2;
+	var b = actions[n0];
+	var e = actions[n1] || b;
 	var a = "iValAng15", vBgn = b[a], vEnd = e[a];
 	rotateY(vBgn+(vEnd-vBgn)*t); // 轉舞台
 	
@@ -126,7 +130,10 @@ function drawAnthony(time){
 }
 var lastTime = 0;
 var delayTime = 0;
-var n1, n2;
+var n0, m, n, i, n1, n2;
+function reset() {
+	delayTime = n1 = undefined, iDirect.value = 1;
+}
 function drawScene() {
 	if( bAuto.innerHTML == "自動" )
 		return;
@@ -135,37 +142,34 @@ function drawScene() {
 	var time = new Date().getTime() / 1000;
 	var d = parseInt( iDirect.value );
 	const PI = Math.PI / parseInt( iSpeed.value );
-//	if( d < 0 )
-//		console.log('d < 0');
 	if( ! delayTime ){
 		delayTime = time;
 		if ( ! n1 ){
-			var m = iFile.value.match(/(\D+)(\d+)/);
-			var n = m[1], i = parseInt( m[2] ) + d;
-			n1 = n + i;
+			n0 = iFile.value;
+			m = n0.match(/(\D+)(\d*)/);
+			n = m[1], i = parseInt( m[2] || 0 );
+			n1 = n + (i + d);
 		}
 		if( ! actions[n1] ) return;
 	} // else console.log( 'delayTime', delayTime );
 	time -= delayTime;
 	if( time > PI ){
-		if( d < 0 )
-			console.log('d < 0');
+//		if( d < 0 )
+//			console.log('d < 0');
 		time -= PI;
 		delayTime += PI;
-		iFile.value = n1;
-		var m = n1.match(/(\D+)(\d+)/);
-		var n = m[1], i = parseInt( m[2] ) + d;
-		if( i<0 )
-			console.log('i<0');
-		n2 = n+i;
+		n2 = n + (i + 2 * d);
+//		if( i<0 )
+//			console.log('i<0');
 		if( actions[n2] )
 			iIndex.value = i;
 		else
-			iDirect.value = - d;
+			iDirect.value = d = - d, n2 = n0;
+		n0 = n1, n1 = n2
+		iFile.value = n0; iIndex.value = n0.match(/\d+$/)[0];
 	}
-	console.log('名',iFile.value,'向',iDirect.value,'時',time,delayTime);
-	time *= parseInt(iSpeed.value);
-	drawAnthony(time);
+	time *= parseInt( iSpeed.value );
+	drawAnthony( time, n0, n1 );
 }
 function animate(){
 	requestAnimFrame(animate); // the function requestAnimFrame is in webgl-utils.js
