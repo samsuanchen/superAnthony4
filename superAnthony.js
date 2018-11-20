@@ -150,8 +150,8 @@ function drawScene() {
 	if( time > PI ){
 		if( d < 0 )
 			console.log('d < 0');
-		time -= Math.PI;
-		delayTime += Math.PI;
+		time -= PI;
+		delayTime += PI;
 		iFile.value = n1;
 		var m = n1.match(/(\D+)(\d+)/);
 		var n = m[1], i = parseInt( m[2] ) + d;
