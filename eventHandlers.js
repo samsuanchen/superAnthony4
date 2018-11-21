@@ -45,23 +45,26 @@ function toAuto(){
 	else						  bAuto.innerHTML = "自動";
 }
 function incVal(){
-	var incElement = event.path[0], m = incElement.id.match(/(Ang\d+)$/);
+	var incElement = event.path[0], m = incElement.id.match( /(Ang\d+)$/ );
 	if( !m ) return;
-	var valElement = document.getElementById('iVal' + m[0]);
-	valElement.value = parseInt(valElement.value) + parseInt(iDelta.value);
+	var id = 'iVal' + m[0], valElement = document.getElementById( id );
+	var v = parseInt( valElement.value ) + parseInt( iDelta.value );
+	actions[n0][id] = valElement.value = v;
 	drawAnthony(0);
 }
 function decVal(){
-	var incElement = event.path[0], m = incElement.id.match(/(Ang\d+)$/);
+	var incElement = event.path[0], m = incElement.id.match( /(Ang\d+)$/ );
 	if( !m ) return;
-	var valElement = document.getElementById('iVal' + m[0]);
-	valElement.value = parseInt(valElement.value) - parseInt(iDelta.value);
+	var id = 'iVal' + m[0], valElement = document.getElementById( id );
+	var v = parseInt( valElement.value ) - parseInt( iDelta.value );
+	actions[n0][id] = valElement.value = v;
 	drawAnthony(0);
 }
 function toChangeVal(){
 	if(bAuto.innerHTML != "自動") return;
-	var curElement = event.path[0], m = curElement.id.match(/Ang\d+$/);
-	if( !m ) return;
+	var curElement = event.path[0];
+	if( curElement.class != "number" ) return;
+	actions[n0][curElement.id] = curElement.value;
 	drawAnthony(0);
 }
 function toKeyinVal(){

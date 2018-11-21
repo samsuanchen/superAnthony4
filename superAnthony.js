@@ -154,11 +154,11 @@ function drawScene() {
 	} // else console.log( 'delayTime', delayTime );
 	time -= delayTime;
 	if( time > PI ){
-//		if( d < 0 )
-//			console.log('d < 0');
+		if( d < 0 )
+			d = d;
 		time -= PI;
-		delayTime += PI;
-		n2 = n + (i + 2 * d);
+		delayTime += PI, i = parseInt( iIndex.value ) + 2 * d;
+		n2 = n + i;
 //		if( i<0 )
 //			console.log('i<0');
 		if( actions[n2] )
