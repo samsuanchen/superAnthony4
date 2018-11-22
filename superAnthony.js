@@ -5,6 +5,7 @@ function d3( v ) { // 小數點後印出 3 位
 var lastT = 0;
 var hamonic = function( time ){ return ( 1 - Math.cos( time ) ) / 2; }
 var linear = function( time ){ return time / Math.PI % 1; }
+var f2 = function( time ){ return ( time / Math.PI ) ** 2; }
 function drawAnthony( time, n0, n1, code ){
 	drawBackground();
 	setOrigin( [0, 2, -30] );
@@ -150,9 +151,13 @@ function drawScene() {
 		return;
 	var time = new Date().getTime() / 1000;
 	var d = parseInt( iDirect.value );
+	var code;
+	if( d == 0 ){
+		d = 1;
+	}
 	const PI = Math.PI / parseInt( iSpeed.value );
 	if( ! delayTime ){
-		delayTime = time;
+		delayTime = time, code = f2;
 		if ( ! n1 ){
 			n0 = iFile.value;
 			m = n0.match(/(\D+)(\d*)/);
@@ -173,12 +178,12 @@ function drawScene() {
 		if( actions[n2] )
 			iIndex.value = i;
 		else
-			iDirect.value = d = - d, n2 = n0;
+			iDirect.value = d = - d, code = f2, n2 = n0;
 		n0 = n1, n1 = n2
 		iFile.value = n0; iIndex.value = n0.match(/\d+$/)[0];
 	}
 	time *= parseInt( iSpeed.value );
-	drawAnthony( time, n0, n1 );
+	drawAnthony( time, n0, n1, code );
 }
 function animate(){
 	requestAnimFrame(animate); // the function requestAnimFrame is in webgl-utils.js
