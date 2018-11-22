@@ -24,7 +24,7 @@ function load(key){
 	};
 	var m = key.match(/\d+$/);
 	if(m) iIndex.value = m[0];
-	delayTime = n1 = undefined, iDirect.value = 1;
+	delayTime = n1 = undefined, iDirect.value = 0;
 	drawAnthony(0);
 }
 function onScriptPasted(){

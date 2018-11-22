@@ -3,13 +3,16 @@ function d3( v ) { // 小數點後印出 3 位
 	return v.toString().substr( 0, 5 );
 }
 var lastT = 0;
-function drawAnthony( time, n0, n1 ){
+var hamonic = function( time ){ return ( 1 - Math.cos( time ) ) / 2; }
+var linear = function( time ){ return time / Math.PI % 1; }
+function drawAnthony( time, n0, n1, code ){
 	drawBackground();
 	setOrigin( [0, 2, -30] );
 	time = time || 0;
 	n0 = n0 || iFile.value;
 	n1 = n1 || n0;
-	var t = ( 1 - Math.cos( time ) ) / 2;
+	code = code || linear;
+	var t = code( time );
 	if( iPrint.checked ) console.log( d3( t ), n0, n1, d3( t - lastT ) );
 	if( t < lastT ){
 		var msg = 't < lastT';
