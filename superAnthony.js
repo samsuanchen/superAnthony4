@@ -1,15 +1,21 @@
 // superAnthony.js @ https://github.com/samsuanchen/superAnthony3
-function d3( i ) {
-	return i.toString().substr( 0, 5 );
+function d3( v ) { // 小數點後印出 3 位
+	return v.toString().substr( 0, 5 );
 }
+var lastT = 0;
 function drawAnthony( time, n0, n1 ){
 	drawBackground();
 	setOrigin( [0, 2, -30] );
 	time = time || 0;
 	n0 = n0 || iFile.value;
 	n1 = n1 || n0;
-	if( bPrint.checked ) console.log( d3( time ), n0, n1 );
 	var t = ( 1 - Math.cos( time ) ) / 2;
+	if( iPrint.checked ) console.log( d3( t ), n0, n1, d3( t - lastT ) );
+	if( t < lastT ){
+		var msg = 't < lastT';
+//		console.log( msg );
+	}
+	lastT = t;
 	var b = actions[n0];
 	var e = actions[n1] || b;
 	var a = "iValAng15", vBgn = b[a], vEnd = e[a];
@@ -156,7 +162,7 @@ function drawScene() {
 	if( time > PI ){
 		if( d < 0 )
 			d = d;
-		time -= PI;
+		time %= PI;
 		delayTime += PI, i = parseInt( iIndex.value ) + 2 * d;
 		n2 = n + i;
 //		if( i<0 )

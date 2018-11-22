@@ -296,13 +296,13 @@ f.init = function( script ){
 }
 
 f.init(`
- code immediate ( -- ) f.last.immediate = true; end-code 
- code compile-only ( -- ) f.last.compileOnly = true; end-code 
  code constant ( n <name> -- ) f.addWord( f.createWord( f.doCon, "parm", f.dStk.pop() ) ); end-code 
  code variable ( <name> -- ) f.addWord( f.createWord( f.doVar, "parm", f.ram.length ) ); f.ram.push( 0 ); end-code 
  code value ( n <name> -- ) f.addWord( f.createWord( f.doVal, "parm", f.dStk.pop() ) ); end-code 
+ code immediate ( -- ) f.last.immediate = true; end-code 
+ code compile-only ( -- ) f.last.compileOnly = true; end-code 
  code : ( <name> -- ) f.createWord( f.doCol, "parm", [] ), f.compiling = true; end-code 
- code ; ( -- ) f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false; end-code immediate
+ code ; ( -- ) f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false; end-code immediate compile-only 
  code doLit ( -- n ) f.dStk.push( f.head.parm[f.head.ip++] ); end-code compile-only 
  code doStr ( -- str ) f.dStk.push( f.head.parm[f.head.ip++] ); end-code compile-only 
  code doRet ( -- ) f.doRet(); end-code compile-only 

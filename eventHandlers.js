@@ -18,7 +18,7 @@ function load(key){
 	if( ! key ) key = iFile.value;
 	else iFile.value = key;
 	key = key || iFile.value;
-	var json = JSON.parse(localStorage.getItem("anthony4_"+key));
+	var json = actions[key];
 	for(var id in json){
 		eval(id+'.value='+json[id]);
 	};
@@ -41,15 +41,29 @@ function onEvalClick(){
 	input.value = "";
 }
 function toAuto(){
-	if(bAuto.innerHTML == "自動") bAuto.innerHTML = "暫停";
-	else						  bAuto.innerHTML = "自動";
+	if(bAuto.innerHTML == "自動"){
+		bAuto.innerHTML = "暫停";
+		for( var i = 0, Ii; i < II.length; i++ )
+			Ii = II[i], Ii.setAttribute( 'disabled', true );
+		for( var i = 0, Bi; i < BB.length; i++ )
+			Bi = BB[i], Bi.setAttribute( 'disabled', true );
+		bAuto.removeAttribute( 'disabled' );
+		iPrint.removeAttribute( 'disabled' );
+	} else {
+		bAuto.innerHTML = "自動";
+		for( var i = 0, Ii; i < II.length; i++ )
+			Ii = II[i], Ii.removeAttribute( 'disabled' );
+		for( var i = 0, Bi; i < BB.length; i++ )
+			Bi = BB[i], Bi.removeAttribute( 'disabled' );
+		toCurr();
+	}
 }
 function incVal(){
 	var incElement = event.path[0], m = incElement.id.match( /(Ang\d+)$/ );
 	if( !m ) return;
 	var id = 'iVal' + m[0], valElement = document.getElementById( id );
 	var v = parseInt( valElement.value ) + parseInt( iDelta.value );
-	actions[n0][id] = valElement.value = v;
+	actions[iFile.value][id] = valElement.value = v;
 	drawAnthony(0);
 }
 function decVal(){
@@ -57,18 +71,21 @@ function decVal(){
 	if( !m ) return;
 	var id = 'iVal' + m[0], valElement = document.getElementById( id );
 	var v = parseInt( valElement.value ) - parseInt( iDelta.value );
-	actions[n0][id] = valElement.value = v;
+	actions[iFile.value][id] = valElement.value = v;
 	drawAnthony(0);
 }
 function toChangeVal(){
 	if(bAuto.innerHTML != "自動") return;
 	var curElement = event.path[0];
-	if( curElement.class != "number" ) return;
-	actions[n0][curElement.id] = curElement.value;
+	actions[iFile.value][curElement.id] = parseInt( curElement.value );
 	drawAnthony(0);
 }
-function toKeyinVal(){
-	if(event.key == "Enter") toChangeVal();
+function toCurr(){
+	var json = actions[iFile];
+	for(var a in json){
+		eval(a+'.value='+json[a]);
+	};
+	drawAnthony(0);
 }
 function toPrev(){
 	var m=iFile.value.match(/(\D+)(\d*)$/);
