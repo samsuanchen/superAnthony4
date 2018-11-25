@@ -1,4 +1,4 @@
-# superAnthony3
+# superAnthony4
 
 I am trying to draw a 3D robot so called Super Anthony animated via webGL programming in js.
 
@@ -16,37 +16,37 @@ I am trying to draw a 3D robot so called Super Anthony animated via webGL progra
 
 ## repeat animation frames via the function called in webgl-utils.js
 
-## provide a convenient forth script via oneWordVM, in oneWordVM.js
+## provide forth eval via oneWordVM, in oneWordVM.js
 
-### f.dict[wordName] and f.dStk[i]
+### ### f.eval(script)
 
-### f.eval(script)
+### ### f.dict[wordName] and f.dStk[i]
 
-### the word w in f.dict
-#### primitive word, the word code or the word of w.definedBy="code"
-##### w.name
-##### w.code
-#### other word types, each of same w.code but differnt w.parm
-##### constant word, w.code=f.doCon and w.definedBy="constant"
-##### value word, w.code=f.doVal and w.definedBy="value"
-##### variable word, w.code=f.doVar and w.definedBy="variable"
-##### colon word, w.code=f.doCol and w.definedBy=":"
-#### compilation and execution of the colon word 
-##### w.immediate
-##### w.compileOnly
-##### f.rStk[i]
-#### other word attributes
-##### w.id
-##### w.src
-##### w.iInp
-##### w.srcBgn
-##### w.srcEnd
-### testing and checking
-#### f.eval(script)
-#### f.dStk
-#### w=f.dict[wordName]
-#### f.execute(w) 
-#### f.word=w and w.code()
-#### w.src
-#### f.tracing=true
+### ### the word w in f.dict
+#### $$$$ primitive word, the word code or the word of w.definedBy="code"
+##### ***** w.name
+##### ***** w.code
+#### $$$$ other word types, each of same w.code but differnt w.parm
+##### ***** constant word, w.code=f.doCon and w.definedBy="constant"
+##### ***** value word, w.code=f.doVal and w.definedBy="value"
+##### ***** variable word, w.code=f.doVar and w.definedBy="variable"
+##### ***** colon word, w.code=f.doCol and w.definedBy=":"
+#### $$$$ compilation and execution of the colon word 
+##### ***** w.immediate
+##### ***** w.compileOnly
+##### ***** f.rStk[i]
+#### $$$$ other word attributes
+##### ***** w.id
+##### ***** w.src
+##### ***** w.iInp
+##### ***** w.srcBgn
+##### ***** w.srcEnd
+### ### testing and checking
+#### $$$$ f.eval(script)
+#### $$$$ f.dStk
+#### $$$$ w=f.dict[wordName]
+#### $$$$ f.execute(w) 
+#### $$$$ f.word=w and w.code()
+#### $$$$ w.src
+#### $$$$ f.tracing=true
 
