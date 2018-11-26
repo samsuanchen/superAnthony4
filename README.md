@@ -37,7 +37,7 @@ Pops a data (number or js object) from stack, e.g. 4.2, print the data
 #### $$$$ e.g. f.eval('1.2 3 + .')
 Two numbers 1.2 and 3 are added, then print the sum 4.2
 #### $$$$ e.g. f.eval('"data1" . "data" 2 + .')
-Two numbers 1.2 and 3 are added, then print the sum 4.2
+String "data1" is printed first, then "data" and 2 are added, then print the result string "data2"
 #### $$$$ e.g. f.eval()
 Default script is given to add 123 words into dictionary f.dict
 ### ### f.dict[wordName] and f.dStk[i]
