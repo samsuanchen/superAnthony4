@@ -181,7 +181,7 @@ function drawScene() {
 		else
 			iDirect.value = d = - d, code = f2, n2 = n0, i2 = i;
 		n0 = n1, n1 = n2
-		iFile.value = n2; iIndex.value = i2;
+		iFile.value = n0; iIndex.value = i;
 	}
 	time *= parseInt( iSpeed.value );
 	drawAnthony( time, n0, n1, code );

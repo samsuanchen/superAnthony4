@@ -16,10 +16,26 @@ I am trying to draw a 3D robot so called Super Anthony animated via webGL progra
 
 ## repeat animation frames via the function called in webgl-utils.js
 
-## provide forth eval via oneWordVM, in oneWordVM.js
+## provide a one word VM, in oneWordVM.js
 
-### ### f.eval(script)
-
+### ### an instence f of the one word VM uses js console as output device
+### ### use fuction key, e.g. f12 for chrome, to open a js console
+### ### f.eval(script) gives the f a script to execute
+#### $$$$ f.eval parses tokens from script, (taking white space as delimiter)
+#### $$$$ if token is a word name in dictionary, f.dict, f executes the word
+#### $$$$ if token is a number, interger or float, f pushs the it onto data stack, f.dStk
+#### $$$$ if token is a js object, f pushs the object onto data stack, f.dStk
+#### $$$$ else f reports the token as unDef
+#### $$$$ e.g. f.eval('1.2 3')
+The given script '1.2 3' pushs two numbers 1.2 and 3 onto data stack, f.dStk
+#### $$$$ e.g. f.eval('code + f.dStk.push(f.dStk.pop()+f.dStk.pop()); end-code')
+The given script defines + as the name of word to do f.dStk.push(f.dStk.pop()+f.dStk.pop());
+Pops two numbers from stack, e.g. 1.2 and 3, adds them as sum, e.g. 4.2, pushs it onto stack
+#### $$$$ e.g. f.eval('code . f.print(f.dStk.pop()); end-code')
+The given script defines . as the name of word to do f.print(f.dStk.pop());
+Pops a data (number or js object) from stack, e.g. 4.2, print the data
+#### $$$$ e.g. f.eval()
+Default script is given to add 123 words into dictionary f.dict
 ### ### f.dict[wordName] and f.dStk[i]
 
 ### ### the word w in f.dict

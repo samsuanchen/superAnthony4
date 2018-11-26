@@ -15,23 +15,19 @@ f.tob = "";					// the terminal output buffer
 f.print = function( msg ){	// print message
 	console.log( msg );
 }
-f.userException = function ( message ) {
-   this.message = message;
-   this.name = 'userException';
-   f.print(JSON.stringify(message,null,2));
-}
-f.error = function ( message ) {
-   f.userException( message );
-   exit;
-}
-f.panic = function( msg ){	// print message and return f.errorMessage
-	f.errorMessage = { msg: msg, token: f.token, 
-		base: f.ram[f.base], last: f.last,
-		word: f.word, compiling: f.compiling, head: f.head,
-		dStk: f.dStk, rStk: f.rStk, toIn: f.ram[f.toIn], tib: f.tib
-	}
-	if( f.ram[f.tracing] ) window.alert("??? "+msg+" ???\n"+JSON.stringify(f.errorMessage,null,2));
-	f.error(f.errorMessage);
+f.panic = function( msg ){	// print given message and system info
+	var m = {};
+	m.msg = msg, m.token = f.token, m.base = f.ram[f.base];
+	m.word = f.word, m.dStk = f.dStk;
+	if( f.last ) m.last = f.last.name;
+	m.compiling = f.compiling;
+	if( f.head ) m.head = f.head.name, m.ip = f.head.ip, m.rStk = f.rStk;
+	m.toIn = f.ram[f.toIn], m.tib = f.tib.substr( 0, 100 );
+	if( f.tib.substr(100) ) m.tib +'...';
+	m = JSON.stringify( m, null, 2 );
+	if( f.ram[f.tracing] ) window.alert(m);
+	f.print(m);
+	exit;
 }
 f.cr = function( msg ){		// type message to terminal output buffer
 	f.print( f.tob + ( msg || '' ) ), f.tob = '';
@@ -146,7 +142,7 @@ f.getToken = function( delimiter ) { // get next token from tib
 		}
 		f.ram[f.toIn] += t.length; return t.substr(1);
 	}
-	m = t.match( /^\s*(\S+)\s?/ );
+	m = t.match( /^[\s]*(\S+)\s?/ );
 	if( !m ) return;
 	f.ram[f.toIn] += m[0].length;
 	return m[1];
@@ -208,8 +204,54 @@ f.isNotANumber = function ( n ) {
 	for ( var i=0; i<n.length; i++ ) if( f.isNotADigit( n.charCodeAt( i ), f.ram[f.base] ) ) return true;
 	return false;
 }
+f.psee = function (w){ // 
+  var src=w.src, definedBy=w.definedBy, n; 
+  if(definedBy=='alias'){ 
+   var L=Object.keys(f.dict).sort( function(a,b){ 
+    return f.dict[a].id-f.dict[b].id; 
+   }).slice(0,w.id); 
+   for(var i=L.length-1; i>=0; i--){ 
+    n=f.dict[L[i]]; 
+    if(n.code==w.code) break; 
+   } 
+   if(i>=0) src="' "+n.name+" "+src; 
+  } else if(definedBy=='constant' || definedBy=='value'){ 
+   src=JSON.stringify(w.parm)+" "+src; 
+  } 
+  if(w.immediate) src+=" immediate"; 
+  if(w.compileOnly) src+=" compile-only"; 
+  f.print('W'+w.id+' '+src);
+}
+var w={
+	id: 0,
+	name: 'code',
+	code: function(){ // ( <namw> -- )
+		const w = f.createWord(),
+			t = f.tib.substr(f.ram[f.toIn]),
+			m = t.match(/^\s*(\(\s.+?\s\)\s)?([^\0]+?)\send-code\s*/);
+		if( ! m ){
+			f.panic( "expect 'end-code'" );
+		}
+		f.ram[f.toIn] += m[0].length;
+		var _fun_;
+		const code = "_fun_ = function(){" + (m[1] ? ("// " + m[1]) : "") + "\n\t" + m[2] + "}";
+		try {
+			eval( code ); w.code = _fun_, f.addWord( w );
+		} catch ( err ) {
+			f.print( 'eval("' + code + '")' );
+			f.panic( err )
+		}
+	} };
+var src=w.code.toString();
+w.src='code '+w.name+src.substr(11,src.length-13)+'end-code';
+w.definedBy = 'code';
+f.dict = {	// So far the word "code" is the only word in dictionary.
+			// New words can be defined by "code" in javascript via f.eval() later.
+	"code": w
+};
 f.inps = [], f.nInp = 0;
 f.eval = function(tib) { // evaluate given script in tib
+	tib = tib || f.defaultScript;
 	f.inps.push(tib);
 	f.cr("inp "+(f.nInp++)+" > `"+tib+"`");
 	f.tib = tib || "", f.ram[f.toIn] = 0, f.rStk=[], f.compiling = f.errorMessage = false;
@@ -249,53 +291,8 @@ f.eval = function(tib) { // evaluate given script in tib
 		if( f.errorMessage ) break;
 	}
 }
-f.psee = function (w){ // 
-  var src=w.src, definedBy=w.definedBy, n; 
-  if(definedBy=='alias'){ 
-   var L=Object.keys(f.dict).sort( function(a,b){ 
-    return f.dict[a].id-f.dict[b].id; 
-   }).slice(0,w.id); 
-   for(var i=L.length-1; i>=0; i--){ 
-    n=f.dict[L[i]]; 
-    if(n.code==w.code) break; 
-   } 
-   if(i>=0) src="' "+n.name+" "+src; 
-  } else if(definedBy=='constant' || definedBy=='value'){ 
-   src=JSON.stringify(w.parm)+" "+src; 
-  } 
-  if(w.immediate) src+=" immediate"; 
-  if(w.compileOnly) src+=" compile-only"; 
-  f.print('W'+w.id+' '+src);
-}
-f.dict = {	// So far the word "code" is the only word in dictionary.
-			// New words can be defined by "code" in javascript via f.eval() later.
-	"code": { id: 0, name: 'code', code: function(){ // ( <namw> -- )
-		const w = f.createWord(),
-			t = f.tib.substr(f.ram[f.toIn]),
-			m = t.match(/^\s*(\(\s.+?\s\)\s)?([^\0]+?)\send-code/);
-		if( ! m ){
-			f.panic( "expect 'end-code'" );
-		}
-		f.ram[f.toIn] += m[0].length;
-		var _fun_;
-		const code = "_fun_ = function(){" + (m[1] ? ("// " + m[1]) : "") + "\n\t" + m[2] + "}";
-		try {
-			eval( code ); w.code = _fun_, f.addWord( w );
-		} catch ( err ) {
-			f.print( 'eval("' + code + '")' );
-			f.panic( err )
-		}
-	} }
-};
-var w=f.dict.code, src=w.code.toString();
-w.src='code '+w.name+src.substr(11,src.length-13)+'end-code';
-w.definedBy = 'code';
-f.init = function( script ){
-	f.print( "javascript oneWordVm f 20181111 samsuanchen@gmail.com" );
-	f.eval( script );
-}
-
-f.init(`
+f.print( "javascript oneWordVm 20181111 samsuanchen@gmail.com" );
+f.defaultScript = `
  code constant ( n <name> -- ) f.addWord( f.createWord( f.doCon, "parm", f.dStk.pop() ) ); end-code 
  code variable ( <name> -- ) f.addWord( f.createWord( f.doVar, "parm", f.ram.length ) ); f.ram.push( 0 ); end-code 
  code value ( n <name> -- ) f.addWord( f.createWord( f.doVal, "parm", f.dStk.pop() ) ); end-code 
@@ -442,7 +439,7 @@ f.init(`
  : .s depth if depth 1- for r@ pick . next else ." empty " . then cr ;
  .( input "words" should output the following: ) cr 
  words cr 
-`);
+`
 return f;
 }
 const f = new OneWordVM();
