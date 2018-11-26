@@ -28,12 +28,16 @@ I am trying to draw a 3D robot so called Super Anthony animated via webGL progra
 #### $$$$ else f reports the token as unDef
 #### $$$$ e.g. f.eval('1.2 3')
 The given script '1.2 3' pushs two numbers 1.2 and 3 onto data stack, f.dStk
-#### $$$$ e.g. f.eval('code + f.dStk.push(f.dStk.pop()+f.dStk.pop()); end-code')
+#### $$$$ e.g. f.eval('code + var x=f.dStk.pop(); f.dStk.push(f.dStk.pop()+x); end-code')
 The given script defines + as the name of word to do f.dStk.push(f.dStk.pop()+f.dStk.pop());
 Pops two numbers from stack, e.g. 1.2 and 3, adds them as sum, e.g. 4.2, pushs it onto stack
 #### $$$$ e.g. f.eval('code . f.print(f.dStk.pop()); end-code')
 The given script defines . as the name of word to do f.print(f.dStk.pop());
 Pops a data (number or js object) from stack, e.g. 4.2, print the data
+#### $$$$ e.g. f.eval('1.2 3 + .')
+Two numbers 1.2 and 3 are added, then print the sum 4.2
+#### $$$$ e.g. f.eval('"data1" . "data" 2 + .')
+Two numbers 1.2 and 3 are added, then print the sum 4.2
 #### $$$$ e.g. f.eval()
 Default script is given to add 123 words into dictionary f.dict
 ### ### f.dict[wordName] and f.dStk[i]
