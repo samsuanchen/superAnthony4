@@ -123,6 +123,14 @@ f.createWord = function( code, tag, value ){ //
 	if( tag ) w[tag] = value;
 	return w;
 }
+f.constant=function(){
+	var v=JSON.stringify(f.dStk.pop());
+	var src="f.dStk.push("+v+");";
+	var w=f.createWord(eval("_fun_=function(){"+src+"}"));
+	w.src=v+" constant "+w.name+" "+src+" end-code";
+	w.definedBy="constant";
+	f.addWord(w);
+}	
 f.addWord = function(w){	// add a new into the dictionary
 	f.dict[w.name] = w;
 	w.src = f.tib.substring(f.last.srcBgn,f.ram[f.toIn]).trim();
@@ -216,7 +224,8 @@ f.psee = function (w){ //
    } 
    if(i>=0) src="' "+n.name+" "+src; 
   } else if(definedBy=='constant' || definedBy=='value'){ 
-   src=JSON.stringify(w.parm)+" "+src; 
+   var m=w.code.toString().match(/function\(\)\{f\.dStk\.push\((.+)\);\}/);
+   src=(m?m[1]:JSON.stringify(w.parm))+" "+src; 
   } 
   if(w.immediate) src+=" immediate"; 
   if(w.compileOnly) src+=" compile-only"; 
@@ -370,8 +379,9 @@ f.defaultScript = `
     if(n.code==w.code) break; 
    } 
    if(i>=0) src="' "+n.name+" "+src; 
-  } else if(definedBy=='constant' || definedBy=='value'){ 
-   src=JSON.stringify(w.parm)+" "+src; 
+  } else if(definedBy=='constant' || definedBy=='value'){  
+   var m=w.code.toString().match(/function\\(\\)\\{f\\.dStk\\.push\\((.+)\\);\\}/);
+   src=(m?m[1]:JSON.stringify(w.parm))+" "+src; 
   } 
   if(w.immediate) src+=" immediate"; 
   if(w.compileOnly) src+=" compile-only"; 
