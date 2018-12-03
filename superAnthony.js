@@ -184,7 +184,7 @@ function drawScene() {
 		iFile.value = n0; iIndex.value = i;
 	}
 	time *= parseInt( iSpeed.value );
-	drawAnthony( time, n0, n1, code );
+	drawAnthony( time, n0, n1, linear );
 }
 function animate(){
 	requestAnimFrame(animate); // the function requestAnimFrame is in webgl-utils.js

@@ -157,3 +157,15 @@ G) 堆疊操作
 		while(i>1)s[n-i]=s[n-(--i)]; s[n-1]=ni; end-code
    
    還有一些常見的堆疊操作指令
+   
+var _fun_=function(){
+	var name=f.getToken();
+	var toIn=f.ram[f.toIn];
+	if(f.getToken()!='('){f.ram[f.toIn]=toIn;return;}
+	var src='', inps=[], ni, outs=[], no, _fun_;
+	while((ni=f.getToken())!='--')inps.push(ni);
+	while(ni=f.inps.pop())src+='var '+ni+'=f.dStk.pop();';
+	while((no=f.getToken())!=')')src+='f.dStk.push('+no+');');
+	src='_fun_=function(){'+src+'}';
+	eval(src);
+}
