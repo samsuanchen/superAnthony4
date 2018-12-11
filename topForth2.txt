@@ -2,17 +2,17 @@
 
 ## A) Forth 基本特性
 
-   1. Forth 是 終端應用系統 使用者 或 程式語言
-      初學者 容易使用 並且 容易用以設計 終端應用系統 的 語言。
+   1. Forth 是 場域應用系統 使用者 或 程式語言 初學者 容易使用
+      並且 容易用以設計 場域應用系統 的 語言。
 
    2. Forth 是 程式語言 開發者 容易輕鬆建制 的 系統, 從無到有 (Bottom Up)
       或者 從既有到更豐富 (Top Up)。
 
 ## B) 對 Forth 的期許
 
-   1. Forth 應該永遠是 終端應用系統 使用者 或 程式語言 初學者 方便的工具。
+   1. Forth 應該永遠是 場域應用系統 使用者 或 程式語言 初學者 方便的工具。
 
-   2. Forth 應該永遠是 終端應用系統 使用者 與 開發者 隨時代進步而日新月異的
+   2. Forth 應該永遠是 場域應用系統 使用者 與 開發者 隨時代進步而日新月異的
       方便工具 (善用既有豐富資源)。
 
 ## C) TOP FORTH
@@ -23,17 +23,16 @@
 
 ## D) oneWordVM.js
 
-   oneWordVM.js 中我們已用 f = new  oneWordVM(); 這 js 指令 預設了一個名為 f 的 TOP FORTH 核心引擎。我們可用 f.eval(script) 這 js 語法 來執行 script 中一連串的指令 (Forth Word)。只是這引擎僅預設了 1 個 Forth Word 叫作 "code", 有了這 Forth Word 就可 定義出許多 新的 Forth Word 分別去執行 任何形式的 js code。
+   oneWordVM.js 中 f = new  oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
+   的 TOP FORTH 核心引擎。 這僅有的指令叫作 "code", 有了這指令 就可 定義出許多新指令 (Forth Word) 分別去執行 任何形式的 js code。
 
 ## E) f.eval(script)
 
-   f.eval(script) 依序執行 script 中 以 white space 區隔的每個字串, f.token。
+   f.eval(script) 這 js 指令 可依序執行 script 中 以 white space 區隔的每個字串, f.token。
    
    1. 若 f.token 是 Forth Word, 就直接執行。 
-   2. 若 f.token 是一個 number (不管是 10 進制 float 或是 任何進制 int), 
-      就放到 資料堆疊 備用。 
-   3. 若 f.token 是一個 js object, 不管是 string, list, pointer, … 等, 
-      也放到 資料堆疊 備用。
+   2. 若 f.token 是一個 number (不管是 10 進制 float 或是 任何進制 int), 就放到 資料堆疊 備用。 
+   3. 若 f.token 是一個 js object, 不管是 string, list, pointer, … 等, 也放到 資料堆疊 備用。
    4. 否則, 就宣稱 這 f.token 字串 為 "unDef", 並停止其餘 token 的處理。
 
    
@@ -192,13 +191,13 @@ H) f.dict 字典 與其中的 Forth Word
 I) constant
 
    常常要取用的不變資料 可用 constant 來定義, 例如 f.eval("16 constant led"),
-   定義 led 就是 16, 執行 led 就是 執行 f.doCon,
+   定義 led 就是 16, 執行 led 這 Forth Word 就就是 執行 f.doCon,
    把存放在 f.word.parm 的內容 16 放上 資料堆疊 f.dStk。 f.doCon 的定義如下。
    
 	f.doCon=function(){f.dStk.push(f.word.parm);}
  
-   所有用 constant 定義的 Forth Word 我們稱作 constant type Forth Word。
-   constant 的定義如下。
+   所有用 constant 來定義的 Forth Word 我們稱作 constant type Forth Word。
+   f.dict['constant'], 或可簡寫為 f.dict.constant, 定義如下。
    
 	code constant ( n <name> -- ) // 用 n 定義 一個 constant type Forth Word
 		var w = f.createWord( f.doCon );
