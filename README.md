@@ -21,9 +21,9 @@
    充分 發揮 Forth 本能, 輕鬆創造 應用新指令 的 Top Up 發展系統。 這樣的 Forth 
    或許可以 稱作 TOP FORTH。
 
-## D) oneWordVM.js
+## D) oneWordVM1.js
 
-   oneWordVM.js 中 f = new  oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
+   oneWordVM1.js 中 f = new  oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
    的 TOP FORTH 核心引擎。 這僅有的指令叫作 "code", 有了這指令 就可 定義出許多新指令 (Forth Word) 分別去執行 任何形式的 js code。
 
 ## E) f.eval(script)

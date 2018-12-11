@@ -108,7 +108,7 @@ f.defaultScript = `
  code dup ( n -- n n ) end-code 
  code over ( a b -- a b a ) end-code 
  code pick // ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
-	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i];
+	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
 	end-code 
  code swap ( a b -- b a ) end-code 
  code rot ( a b c -- b c a ) end-code 
@@ -118,7 +118,7 @@ f.defaultScript = `
 	end-code 
  code base ( -- addr ) addr=f.base; end-code 
  code >in ( -- addr ) addr=f.toIn; end-code 
- code tracing ( -- addr ) addr=f.tracing; end-code 
+ code tracing ( -- flag ) flag=f.tracing; end-code 
  code @ ( addr -- value ) value=f.ram[addr]; end-code 
  code ! ( value addr -- ) f.ram[addr]=value; end-code 
  code ] ( -- ) f.compiling=true; end-code 
