@@ -108,25 +108,34 @@ f.compile = function( w ){	// compile a word into colon word-list
 	f.last.parm.push( w );
 }
 function adjustName( name ){
-	return name.replace( /[.+*|{}()\\[\]$^]/g, function(c){ return '\\'+c; } );
+	return name.replace( /[.+*?|{}()\\[\]$^]/g, function(c){ return '\\'+c; } );
 }
 f.createWord = function( name, code, tag, value ){ // 
-	var p = RegExp(
+//	if(name=='(')
+//		console.log("name=='(' in f.createWord()");
+	var p0 = RegExp( '(\\s*)' +
 		adjustName(f.word.name) + '\\s+' +
-		adjustName(name) + '[^\\0]+?\\s*$'
+		adjustName(name) + '\\s[^\\0]*$'
 	);
-	var toIn=f.ram[f.toIn], t=f.tib.substr(0,toIn), m=t.match(p);
-	if( m == undefined )
-		f.printLn('( m == undefined ) in createWord()');
-	var srcBgn = toIn-m[0].length;
+	var p = RegExp( '(\\s*)'+
+		adjustName(f.word.name) + '\\s+' +
+		adjustName(name) + '\\s.*$'
+	);
+	var toIn = f.ram[f.toIn], t = f.tib.substr( 0, toIn ), m0 = t.match( p0 ), m = t.match( p );
+	if( m0 == undefined )
+		f.printLn('( m0 == undefined ) in createWord()');
+	if( m && m.index>m0.index ) m0 = m;
+	var srcBgn = m0.index+(m0[1]?m0[1].length:0);
 	if( f.ram[f.tracing] ) f.traceInfo( 'create a new word ' + name );
 	if( ! name )
 		f.panic("name not given to createWord()");
-	var w = f.dict[name];
-	if( w ) f.printLn('reDef '+name+' same as W'+w.id);
-	w = f.last = { id: Object.keys( f.dict ).length, name: name };
+	var w = f.dict[name], id;
+	if( w ) f.printLn('reDef W' + (id = w.id) + ' ' + name );
+	else    f.printLn('def W' + (id = Object.keys( f.dict ).length ) + ' ' + name );
+	w = f.last = { name: name };
 	w.definedBy = f.word.name;
 	w.srcBgn = srcBgn;
+	w.id = id;
 	if( code ) w.code = code;
 	if( tag ) w[tag] = value;
 	return w;
@@ -318,7 +327,6 @@ f.code = function(){
 		f.panic( err )
 	}
 }
-f.endCode = "end-code";
 var src=f.code.toString();
 var w={
 	id: 0,
@@ -373,7 +381,7 @@ f.eval = function(tib) { // evaluate given script in tib
 		}
 	}
 }
-f.printLn( "javascript oneWordVm 20181111 samsuanchen@gmail.com" );
+f.printLn( "javascript oneWordVm 20181212 samsuanchen@gmail.com" );
 return f;
 }
 const f = new OneWordVM();

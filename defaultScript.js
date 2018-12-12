@@ -2,6 +2,8 @@ f.defaultScript = `
  code code ( <name> (<args>) <js>end-code -- ) 
 	if( js==undefined ) 
 		panic( 'end-code not given' ); 
+	if( name==')' )
+		console.log(" name==')' in new f.code() ");
 	var w = f.createWord( name ); 
     var code = ""; 
 	if( args ){ 
@@ -63,7 +65,7 @@ f.defaultScript = `
 		f.printLn( 'eval("' + code + '")' ); 
 		f.panic( err ) 
 	} 
- end-code
+ end-code 
  code constant ( n <name> -- ) f.addWord( f.createWord( name, f.doCon, "parm", n ) ); end-code 
  code variable ( <name> -- ) f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) ); f.ram.push( 0 ); end-code 
  code value ( n <name> -- ) f.addWord( f.createWord( name, f.doVal, "parm", n ) ); end-code 
@@ -91,7 +93,7 @@ f.defaultScript = `
  code cr ( -- ) f.cr(); end-code 
  code space ( -- ) f.emit( 0x20 ); end-code 
  code spaces ( n -- ) for(var i=0; i<n; i++) f.emit( 0x20 ); end-code 
- code emit ( charCode -- ) f.emit( charCode ); end-code
+ code emit ( charCode -- ) f.emit( charCode ); end-code 
  code type ( obj -- ) f.type( obj ); end-code 
  code .( ( <str>) -- ) f.type( str ); end-code 
  code . ( n -- ) f.type( f.toString( n )+" " ); end-code 
@@ -164,10 +166,8 @@ f.defaultScript = `
   f.printLn('W'+w.id+' '+src); 
  end-code 
  code seeAll ( -- )
-	Object.keys(f.dict)
-	.sort( (a,b) => f.dict[a].id-f.dict[b].id )
-	.forEach( name => f.psee( f.dict[name] ) ); 
-	end-code 
+   for( name in f.dict ){ f.dStk.push(f.dict[name]),f.dict["(see)"].code(); }
+ end-code 
  code alias ( w <name> -- )
 	var n = f.createWord( name, w.code );
 	if( w.parm ) n.parm = w.parm;
