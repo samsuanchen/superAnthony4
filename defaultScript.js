@@ -1,36 +1,34 @@
 f.defaultScript = `
  code code ( <name> (<args>) <js>end-code -- ) 
 	if( js==undefined ) 
-		panic( 'end-code not given' ); 
-	if( name==')' )
-		console.log(" name==')' in new f.code() ");
+		f.panic( 'end-code not given' ); 
 	var w = f.createWord( name ); 
     var code = ""; 
 	if( args ){ 
 		code += "// ( " + args + " )\\n"; 
 		var a = args.split( /\\s*--\\s*/ ); // split input/output 
 		var ai = a[0].split( /\\s+/ ); // input args 
-		var ao = a[1] ? a[1].split( /\\s+/ ) : a[1];	// output args 
+		var ao = a[1] ? a[1].split( /\\s+/ ) : a[1]; // output args 
 		var vi = {}; // input var names 
 		var vo = {}; // output var names 
-		var vt = []; // input var from f.tib 
-		var vd = []; // input var from f.dStk 
-		var ni, lst = ai; 
+		var pt = []; // parse value from f.tib 
+		var pd = []; // pop value from f.dStk 
+		var ni; 
 		ai.forEach( function(ni){ 
 			m = ni.match( /^((.*?)<)?([a-zA-Z][a-zA-Z0-9]*)(>(.*?))?$/ ); 
 			if( ! m ) return; 
 			vi[m[3]]=true; 
 			if( m[2] && m[5] ) 
-				vt.push( m[3] + "=f.getTokenx('" + m[2] + "','" + m[5] + "')" ); 
+				pt.push( m[3] + "=f.getTokenx('" + m[2] + "','" + m[5] + "')" ); 
 			else if( m[5] ){ 
 				var m5 = m[5].replace('\\\\','\\\\\\\\'); 
-				vt.push( m[3] + "=f.getToken('" + m5 + "')" ); } 
+				pt.push( m[3] + "=f.getToken('" + m5 + "')" ); } 
 			else if( m[4] ) 
-				vt.push( m[3] + "=f.getToken()" ); 
+				pt.push( m[3] + "=f.getToken()" ); 
 			else 
-				vd.push( ni + "=f.dStk.pop()" ); 
+				pd.push( ni + "=f.dStk.pop()" ); 
 		}); 
-		var s; while( s = vd.pop() ) vt.push( s ); 
+		var s; while( s = pd.pop() ) pt.push( s ); 
 		if( ao ){ 
 			ao.forEach( no => { 
 				m = no.match(/^(i:)?([a-zA-Z][a-zA-Z0-9]*)$/); 
@@ -40,32 +38,32 @@ f.defaultScript = `
 				} 
 			} ); 
 		} 
-		Object.keys(vo).forEach( no => vt.push(no) ); 
+		Object.keys(vo).forEach( no => pt.push(no) ); 
 	} 
 	var _fun_; 
 	var code = "_fun_ = function(){\\n"; 
 	if( args ){ // before js 
-		if( vt.length ) 
-			code += "var " + vt.join() + ";\\n"; 
+		if( pt.length ) 
+			code += "\tvar " + pt.join() + ";\\n"; 
 	} 
-	code += js; 
-	if( args ){ // after js 
-		code += ( ao ? ( "\\n" + ao.map( function(no){ 
-			var s = '', m = no.match(/^(i:)?(.+)$/); 
-			if( m[1] ) 
-				s += "if(!f.compiling)"; 
-			s += "f.dStk.push(" + m[2] + ")"; 
-			return s; 
-		}).join(";") ) : "" ); 
-	} 
-	code += "\\n}"; 
+	if( js.length ) code += "\\t" + js + "\\n";
+	if( ao ){ // after js
+		code += "\\t" + ao.map( function(no){
+			var s = '', m = no.match(/^(i:)?(.+)$/);
+			if( m[1] )
+				s += "if(!f.compiling)";
+			s += "f.dStk.push(" + m[2] + ")";
+			return s;
+		}).join( ";" ) + "\\n";
+	}
+	code += "\\t}"; 
 	try { 
 		eval( code ); w.code = _fun_, f.addWord( w ); 
 	} catch ( err ) { 
 		f.printLn( 'eval("' + code + '")' ); 
 		f.panic( err ) 
 	} 
- end-code 
+ end-code
  code constant ( n <name> -- ) f.addWord( f.createWord( name, f.doCon, "parm", n ) ); end-code 
  code variable ( <name> -- ) f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) ); f.ram.push( 0 ); end-code 
  code value ( n <name> -- ) f.addWord( f.createWord( name, f.doVal, "parm", n ) ); end-code 
@@ -82,8 +80,8 @@ f.defaultScript = `
  code doNext ( -- ) f.doNext(); end-code compile-only 
  code doIf ( n -- ) f.zBranch(n); end-code compile-only 
  code doElse ( -- ) f.branch(); end-code compile-only 
- code doThen ( -- ) f.noop(); end-code compile-only 
- code doBegin ( -- ) f.noop(); end-code compile-only 
+ code doThen ( -- ) end-code compile-only 
+ code doBegin ( -- ) end-code compile-only 
  code doAgain ( -- ) f.branch(); end-code compile-only 
  code doUntil ( n -- ) f.zBranch(n); end-code compile-only 
  code doWhile ( n -- ) f.zBranch(n); end-code compile-only 
@@ -167,6 +165,29 @@ f.defaultScript = `
  end-code 
  code seeAll ( -- )
    for( name in f.dict ){ f.dStk.push(f.dict[name]),f.dict["(see)"].code(); }
+ end-code 
+ code (seeWord) ( w -- )
+  f.dStk.push(w),f.dict['(see)'].code();
+  console.log('\tw=f.dict["'+w.name+'"];');
+  console.log('\tw.id='+w.id);
+  console.log('\tw.name="'+w.name+'"');
+  console.log('\tw.definedBy="'+w.definedBy+'"');
+  console.log('\tw.code='+w.code);
+  if(w.parm){
+    if(Array.isArray(w.parm)&&typeof(w.parm[0])=='object'&&w.parm[0].id){
+      console.log('\tw.parm=');
+      w.parm.forEach((w,i)=>
+         console.log('\t'+i+' '+(typeof(w)=='object'?('W'+w.id+' '+w.name):w))
+       );
+    } else {
+      console.log('\tw.parm='+JSON.stringify(w.parm));
+      if(w.definedBy=='variable')
+        console.log('\tf.ram['+w.parm+']='+JSON.stringify(f.ram[w.parm]));
+    }
+  }
+  end-code
+ code seeAllWords ( -- )
+   for( name in f.dict ){ f.dStk.push(f.dict[name]),f.dict["(seeWord)"].code(); }
  end-code 
  code alias ( w <name> -- )
 	var n = f.createWord( name, w.code );
