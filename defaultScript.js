@@ -1,11 +1,11 @@
-f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
- code code ( <name> (<args>) <js>end-code -- ) 
+f.defaultScript = `
+ code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
 	if( js==undefined ) 
 		f.panic( 'end-code not given' ); 
 	var w = f.createWord( name ); 
     var code = "", a; 
 	if( args ){ 
-		code += "// ( " + args + " )\\n"; 
+		code += "// ( " + args + " )\\n";
 		a = f.analizeArgs( args );
 	} 
 	var code = "_fun_ = function(){\\n"; 
@@ -47,15 +47,15 @@ f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
  code doRepeat ( -- ) f.branch(); end-code compile-only 
  code ( ( <str>) -- ) end-code immediate 
  code \\ ( <str>\\n -- ) end-code immediate \\ ignore string until end of line
- code cr ( -- ) f.cr(); end-code 
+ code cr ( -- ) f.printLn(); end-code 
  code space ( -- ) f.emit( 0x20 ); end-code 
  code spaces ( n -- ) for( var i=0; i<n; i++ ) f.emit( 0x20 ); end-code 
  code emit ( charCode -- ) f.emit( charCode ); end-code 
- code type ( obj -- ) f.type( obj ); end-code 
- code .( ( <str>) -- ) f.type( str ); end-code 
- code . ( n -- ) f.type( f.toString( n ) + " " ); end-code 
- code .r ( n width -- ) f.type( f.dotR( n, width, " " ) ); end-code 
- code .0r ( n width -- ) f.type( f.dotR( n, width, "0" ) ); end-code 
+ code type ( obj -- ) f.print( obj ); end-code 
+ code .( ( <str>) -- ) f.print( str ); end-code 
+ code . ( n -- ) f.print( f.toString( n ) + " " ); end-code 
+ code .r ( n width -- ) f.print( f.dotR( n, width, " " ) ); end-code 
+ code .0r ( n width -- ) f.print( f.dotR( n, width, "0" ) ); end-code 
  code + ( a b -- a+b ) end-code 
  code - ( a b -- a-b ) end-code 
  code * ( a b -- a*b ) end-code 
@@ -90,9 +90,9 @@ f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
  code literal ( n -- ) f.compileNumber( n ); end-code immediate 
  code execute ( w -- ) f.executeWord( w ); end-code 
  code find ( str -- w ) w=f.dict( str ); end-code 
- code ' ( <name> -- w ) w=f.dict[name]; end-code 
+ code ' ( <name> -- w ) w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); end-code 
  code words ( -- )
-	f.cr(
+	f.printLn(
 		Object.keys( f.dict )
 		.sort( (a,b) => f.dict[a].id-f.dict[b].id )
 		.map( name => "W" + f.dict[name].id + " " + name )
@@ -125,29 +125,6 @@ f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
 	end-code 
  code seeAll ( -- )
 	for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
-	end-code 
- code (seeWord) ( w -- )
-	f.dStk.push( w ),f.dict['(see)'].code();
-	console.log('\tw=f.dict["'+w.name+'"];');
-	console.log('\tw.id='+w.id);
-	console.log('\tw.name="'+w.name+'"');
-	console.log('\tw.definedBy="'+w.definedBy+'"');
-	console.log('\tw.code='+w.code);
-	if( w.parm ){
-		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
-			console.log( '\tw.parm=' );
-			w.parm.forEach(( w, i ) =>
-				console.log( '\t' + i + ' ' + ( typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w ) );
-			);
-		} else {
-			console.log( '\tw.parm=' + JSON.stringify( w.parm ) );
-			if( w.definedBy == 'variable' )
-				console.log( '\tf.ram[' + w.parm + ']=' + JSON.stringify( f.ram[w.parm] ) );
-		}
-	}
-	end-code
- code seeAllWords ( -- )
-	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
 	end-code 
  code alias ( w <name> -- )
 	var n = f.createWord( name, w.code );
@@ -216,6 +193,36 @@ f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
  : +to ( n <name> -- ) ' compiling if [compile] literal compile (+to) else (+to) then ; immediate 
  : .s depth if depth 1- for r@ pick . next else ." empty " then cr ;
  
+ code (seeWord) ( w -- )
+	f.dStk.push( w ),f.dict['(see)'].code();
+	console.log('\tw=f.dict["'+w.name+'"];');
+	console.log('\tw.id='+w.id);
+	console.log('\tw.name="'+w.name+'"');
+	if(w.immediate)console.log('\tw.immediate='+w.immediate);
+	if(w.compileOnly)console.log('\tw.compileOnly='+w.compileOnly);
+	console.log('\tw.definedBy="'+w.definedBy+'"');
+	console.log('\tw.iInp='+w.iInp);
+	console.log('\tw.srcBgn='+w.srcBgn);
+	console.log('\tw.srcEnd='+w.srcEnd);
+	console.log('\tw.code='+w.code);
+	if( w.parm ){
+		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
+			console.log( '\tw.parm=' );
+			w.parm.forEach(( w, i ) => {
+				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
+				console.log( '	' + i + ' ' + t ); 
+			});
+		} else {
+			console.log( '\tw.parm=' + JSON.stringify( w.parm ) );
+			if( w.definedBy == 'variable' )
+				console.log( '\tf.ram[' + w.parm + ']=' + JSON.stringify( f.ram[w.parm] ) );
+		}
+	}
+	end-code
+ code seeAllWords ( -- )
+	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
+	end-code 
+ : seeWord ( <name> -- ) ' (seeWord) ;
  .( enter "words" should print the following: ) cr 
  words
  .( input "hex 1Ff 1+ decimal ." should print the following "512" ) cr 
@@ -225,51 +232,3 @@ f.defaultScript = ` // note!! in string doubleBackSlashs means one backSlash
  .( enter "t99" should print the following: ) cr
  t99 
 `
-f.analizeArgs = function( args ){
-	var a = args.split( /\s*--\s*/ ); // split input/output 
-	var ai = a[0].split( /\s+/ ); // input args 
-	var ao = a[1] ? a[1].split( /\s+/ ) : a[1]; // output args 
-	var vi = {}; // input var names 
-	var vo = {}; // output var names 
-	var pt = []; // parse value from f.tib 
-	var pd = []; // pop value from f.dStk 
-	var ni; 
-	ai.forEach( function(ni){ 
-		m = ni.match( /^((.*?)<)?([a-zA-Z][a-zA-Z0-9]*)(>(.*?))?$/ ); 
-		if( ! m ) return; 
-		vi[m[3]]=true; 
-		if( m[2] && m[5] ) 
-			pt.push( m[3] + "=f.getTokenx('" + m[2] + "','" + m[5] + "')" ); 
-		else if( m[5] ){ 
-			var m5 = m[5].replace('\\','\\\\'); 
-			pt.push( m[3] + "=f.getToken('" + m5 + "')" ); } 
-		else if( m[4] ) 
-			pt.push( m[3] + "=f.getToken()" ); 
-		else 
-			pd.push( ni + "=f.dStk.pop()" ); 
-	}); 
-	var s; while( s = pd.pop() ) pt.push( s ); 
-	if( ao ){ 
-		ao.forEach( no => { 
-			m = no.match(/^(i:)?([a-zA-Z][a-zA-Z0-9]*)$/); 
-			if( m ) { 
-				if ( ! vi[m[2]] ) 
-					vo[m[2]] = true; 
-			} 
-		} ); 
-	} 
-	Object.keys(vo).forEach( no => pt.push(no) ); 
-	return {pt:pt,ao:ao};
-}
-f.getArgs = function( pt ){ // all input args values and output names
-	return "\tvar " + pt.join() + ";\n";
-}
-f.setArgs = function( ao ){ // all output args values
-	return "\t" + ao.map( function(no){
-		var s = '', m = no.match(/^(i:)?(.+)$/); // interpretive mode only
-		if( m[1] )
-			s += "if(!f.compiling)";
-		s += "f.dStk.push(" + m[2] + ")";
-		return s;
-	}).join( ";" ) + "\n";
-}

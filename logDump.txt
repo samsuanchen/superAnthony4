@@ -1,0 +1,2292 @@
+javascript oneWordVm 20181212 samsuanchen@gmail.com
+inp 0 > `
+ code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
+	if( js==undefined ) 
+		f.panic( 'end-code not given' ); 
+	var w = f.createWord( name ); 
+    var code = "", a; 
+	if( args ){ 
+		code += "// ( " + args + " )\n";
+		a = f.analizeArgs( args );
+	} 
+	var code = "_fun_ = function(){\n"; 
+	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
+	if( js.length ) code += "\t" + js + "\n";
+	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
+	code += "\t}"; 
+	try { 
+		var _fun_; eval( code );
+		w.code = _fun_, f.addWord( w ); 
+	} catch ( err ) { 
+		f.printLn( 'eval("' + code + '")' ); 
+		f.panic( err ) 
+	} 
+	end-code
+ code constant ( n <name> -- ) f.addWord( f.createWord( name, f.doCon, "parm", n ) ); end-code 
+ code variable ( <name> -- ) f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) );
+	f.ram.push( 0 ); end-code 
+ code value ( n <name> -- ) f.addWord( f.createWord( name, f.doVal, "parm", n ) ); end-code 
+ code immediate ( -- ) f.last.immediate = true; end-code 
+ code compile-only ( -- ) f.last.compileOnly = true; end-code 
+ code : ( <name> -- ) f.createWord( name, f.doCol, "parm", [] ), f.compiling = true; end-code 
+ code ; ( -- ) f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;
+	end-code immediate compile-only 
+ code doLit ( -- n ) n=f.head.parm[f.head.ip++]; end-code compile-only 
+ code doStr ( -- str ) str=f.head.parm[f.head.ip++]; end-code compile-only 
+ code doRet ( -- ) f.doRet(); end-code compile-only 
+ code exit ( -- ) f.doRet(); end-code compile-only 
+ code ?exit ( flag -- ) if( flag ) f.doRet(); end-code compile-only 
+ code doFor ( n -- ) f.doFor( n ); end-code compile-only 
+ code doNext ( -- ) f.doNext(); end-code compile-only 
+ code doIf ( n -- ) f.zBranch( n ); end-code compile-only 
+ code doElse ( -- ) f.branch(); end-code compile-only 
+ code doThen ( -- ) end-code compile-only 
+ code doBegin ( -- ) end-code compile-only 
+ code doAgain ( -- ) f.branch(); end-code compile-only 
+ code doUntil ( n -- ) f.zBranch( n ); end-code compile-only 
+ code doWhile ( n -- ) f.zBranch( n ); end-code compile-only 
+ code doRepeat ( -- ) f.branch(); end-code compile-only 
+ code ( ( <str>) -- ) end-code immediate 
+ code \ ( <str>\n -- ) end-code immediate \ ignore string until end of line
+ code cr ( -- ) f.cr(); end-code 
+ code space ( -- ) f.emit( 0x20 ); end-code 
+ code spaces ( n -- ) for( var i=0; i<n; i++ ) f.emit( 0x20 ); end-code 
+ code emit ( charCode -- ) f.emit( charCode ); end-code 
+ code type ( obj -- ) f.print( obj ); end-code 
+ code .( ( <str>) -- ) f.print( str ); end-code 
+ code . ( n -- ) f.print( f.toString( n ) + " " ); end-code 
+ code .r ( n width -- ) f.print( f.dotR( n, width, " " ) ); end-code 
+ code .0r ( n width -- ) f.print( f.dotR( n, width, "0" ) ); end-code 
+ code + ( a b -- a+b ) end-code 
+ code - ( a b -- a-b ) end-code 
+ code * ( a b -- a*b ) end-code 
+ code / ( a b -- a/b ) end-code 
+ code mod ( a b -- a%b ) end-code 
+ code ** ( a b -- a**b ) end-code 
+ code drop ( n -- ) end-code 
+ code nip ( a b -- b ) end-code 
+ code dup ( n -- n n ) end-code 
+ code over ( a b -- a b a ) end-code 
+ code pick // ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
+	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
+	end-code 
+ code swap ( a b -- b a ) end-code 
+ code rot ( a b c -- b c a ) end-code 
+ code -rot ( a b c -- c a b ) end-code 
+ code roll // ( ni .. n1 n0 i -- .. n1 n0 ni )
+	var d = f.dStk, t = d.length - 2, i = d.pop(), ni = d[t-i];
+	while( i ){ d[t-i] = d[t-i+1]; i--; } d[t] = ni;
+	end-code 
+ code base ( -- addr ) addr = f.base; end-code 
+ code >in ( -- addr ) addr = f.toIn; end-code 
+ code tracing ( -- flag ) flag = f.tracing; end-code 
+ code @ ( addr -- value ) value = f.ram[addr]; end-code 
+ code ! ( value addr -- ) f.ram[addr] = value; end-code 
+ code ] ( -- ) f.compiling = true; end-code 
+ code [ ( -- ) f.compiling = false; end-code 
+ code token ( <token> -- str ) str = token; end-code 
+ code , ( n -- ) f.compileOffset( n ); end-code 
+ code word, ( w -- ) f.compileWord( w ); end-code 
+ code compile ( -- ) f.compileWord( f.head.parm[f.head.ip++] ); end-code 
+ code literal ( n -- ) f.compileNumber( n ); end-code immediate 
+ code execute ( w -- ) f.executeWord( w ); end-code 
+ code find ( str -- w ) w=f.dict( str ); end-code 
+ code ' ( <name> -- w ) w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); end-code 
+ code words ( -- )
+	f.cr(
+		Object.keys( f.dict )
+		.sort( (a,b) => f.dict[a].id-f.dict[b].id )
+		.map( name => "W" + f.dict[name].id + " " + name )
+		.join( " " )
+	);
+	end-code 
+ code (see) ( w -- ) 
+	var inp = f.inps[w.iInp], src;
+	if(w.srcBgn)
+		src = inp.substring( w.srcBgn, w.srcEnd );
+	else
+		src = w.src;
+	var definedBy = w.definedBy, n; 
+	if( definedBy == 'alias' ){ 
+		var L = Object.keys( f.dict ).sort( function( a, b ){ 
+			return f.dict[a].id - f.dict[b].id; 
+	}).slice( 0, w.id ); 
+	for( var i = L.length - 1; i >= 0; i -- ){ 
+reDef W0 code
+def W1 constant
+def W2 variable
+def W3 value
+def W4 immediate
+def W5 compile-only
+def W6 :
+def W7 ;
+def W8 doLit
+def W9 doStr
+def W10 doRet
+def W11 exit
+def W12 ?exit
+def W13 doFor
+def W14 doNext
+def W15 doIf
+def W16 doElse
+def W17 doThen
+def W18 doBegin
+def W19 doAgain
+def W20 doUntil
+def W21 doWhile
+def W22 doRepeat
+def W23 (
+def W24 \
+def W25 cr
+def W26 space
+def W27 spaces
+def W28 emit
+def W29 type
+def W30 .(
+def W31 .
+def W32 .r
+def W33 .0r
+def W34 +
+def W35 -
+def W36 *
+def W37 /
+def W38 mod
+def W39 **
+def W40 drop
+def W41 nip
+def W42 dup
+def W43 over
+def W44 pick
+def W45 swap
+def W46 rot
+def W47 -rot
+def W48 roll
+def W49 base
+def W50 >in
+def W51 tracing
+def W52 @
+def W53 !
+def W54 ]
+def W55 [
+def W56 token
+def W57 ,
+def W58 word,
+def W59 compile
+def W60 literal
+def W61 execute
+def W62 find
+def W63 '
+def W64 words
+def W65 (see)
+def W66 seeAll
+def W67 alias
+def W68 >
+def W69 <
+def W70 >=
+def W71 <=
+def W72 =
+def W73 <>
+def W74 1+
+def W75 1-
+def W76 2+
+def W77 2-
+def W78 2dup
+def W79 2drop
+def W80 3drop
+def W81 2over
+def W82 depth
+def W83 r@
+def W84 i
+def W85 r>
+def W86 >r
+def W87 here
+def W88 compileTo
+def W89 bl
+def W90 quote
+def W91 word
+def W92 (to)
+def W93 (+to)
+def W94 compiling
+def W95 ."
+def W96 $"
+def W97 see
+def W98 ?
+def W99 on
+def W100 off
+def W101 (trace)
+def W102 trace
+def W103 hex
+def W104 decimal
+def W105 h.
+def W106 h.r
+def W107 h.0r
+def W108 forward,
+def W109 backward,
+def W110 for
+def W111 next
+def W112 if
+def W113 else
+def W114 then
+def W115 begin
+def W116 again
+def W117 until
+def W118 while
+def W119 repeat
+def W120 t9
+def W121 t99
+def W122 [compile]
+def W123 to
+def W124 +to
+def W125 .s
+def W126 (seeWord)
+def W127 seeAllWords
+def W128 seeWord
+enter "words" should print the following: 
+W0 code W1 constant W2 variable W3 value W4 immediate W5 compile-only W6 : W7 ; W8 doLit W9 doStr W10 doRet W11 exit W12 ?exit W13 doFor W14 doNext W15 doIf W16 doElse W17 doThen W18 doBegin W19 doAgain W20 doUntil W21 doWhile W22 doRepeat W23 ( W24 \ W25 cr W26 space W27 spaces W28 emit W29 type W30 .( W31 . W32 .r W33 .0r W34 + W35 - W36 * W37 / W38 mod W39 ** W40 drop W41 nip W42 dup W43 over W44 pick W45 swap W46 rot W47 -rot W48 roll W49 base W50 >in W51 tracing W52 @ W53 ! W54 ] W55 [ W56 token W57 , W58 word, W59 compile W60 literal W61 execute W62 find W63 ' W64 words W65 (see) W66 seeAll W67 alias W68 > W69 < W70 >= W71 <= W72 = W73 <> W74 1+ W75 1- W76 2+ W77 2- W78 2dup W79 2drop W80 3drop W81 2over W82 depth W83 r@ W84 i W85 r> W86 >r W87 here W88 compileTo W89 bl W90 quote W91 word W92 (to) W93 (+to) W94 compiling W95 ." W96 $" W97 see W98 ? W99 on W100 off W101 (trace) W102 trace W103 hex W104 decimal W105 h. W106 h.r W107 h.0r W108 forward, W109 backward, W110 for W111 next W112 if W113 else W114 then W115 begin W116 again W117 until W118 while W119 repeat W120 t9 W121 t99 W122 [compile] W123 to W124 +to W125 .s W126 (seeWord) W127 seeAllWords W128 seeWord
+input "hex 1Ff 1+ decimal ." should print the following "512" 
+512 
+enter "0x1234 8 h.0r" should print the following "00001234" 
+00001234
+enter "t99" should print the following: 
+  1  2  3  4  5  6  7  8  9
+  2  4  6  8 10 12 14 16 18
+  3  6  9 12 15 18 21 24 27
+  4  8 12 16 20 24 28 32 36
+  5 10 15 20 25 30 35 40 45
+  6 12 18 24 30 36 42 48 54
+  7 14 21 28 35 42 49 56 63
+  8 16 24 32 40 48 56 64 72
+  9 18 27 36 45 54 63 72 81
+inp 1 > `seeWord see`
+W97 : see ( <name> -- ) ' (see) ;
+	w=f.dict["see"];
+	w.id=97
+	w.name="see"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7114
+	w.srcEnd=7143
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W65 (see)
+	2 W10 doRet
+inp 2 > `seeAllWords`
+W0 code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
+	if( js==undefined ) 
+		f.panic( 'end-code not given' ); 
+	var w = f.createWord( name ); 
+    var code = "", a; 
+	if( args ){ 
+		code += "// ( " + args + " )\n";
+		a = f.analizeArgs( args );
+	} 
+	var code = "_fun_ = function(){\n"; 
+	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
+	if( js.length ) code += "\t" + js + "\n";
+	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
+	code += "\t}"; 
+	try { 
+		var _fun_; eval( code );
+		w.code = _fun_, f.addWord( w ); 
+	} catch ( err ) { 
+		f.printLn( 'eval("' + code + '")' ); 
+		f.panic( err ) 
+	} 
+	end-code
+	w=f.dict["code"];
+	w.id=0
+	w.name="code"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2
+	w.srcEnd=720
+	w.code=function _fun_(){
+var name=f.getToken(),args=f.getTokenx('(',')'),js=f.getToken('end-code');
+// note!! in string doubleBackSlashs means one backSlash
+	if( js==undefined ) 
+		f.panic( 'end-code not given' ); 
+	var w = f.createWord( name ); 
+    var code = "", a; 
+	if( args ){ 
+		code += "// ( " + args + " )\n";
+		a = f.analizeArgs( args );
+	} 
+	var code = "_fun_ = function(){\n"; 
+	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
+	if( js.length ) code += "\t" + js + "\n";
+	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
+	code += "\t}"; 
+	try { 
+		var _fun_; eval( code );
+		w.code = _fun_, f.addWord( w ); 
+	} catch ( err ) { 
+		f.printLn( 'eval("' + code + '")' ); 
+		f.panic( err ) 
+	} 
+	
+}
+W1 code constant ( n <name> -- ) f.addWord( f.createWord( name, f.doCon, "parm", n ) ); end-code
+	w=f.dict["constant"];
+	w.id=1
+	w.name="constant"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=722
+	w.srcEnd=815
+	w.code=function(){
+	var name=f.getToken(),n=f.dStk.pop();
+	f.addWord( f.createWord( name, f.doCon, "parm", n ) ); 
+	}
+W2 code variable ( <name> -- ) f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) );
+	f.ram.push( 0 ); end-code
+	w=f.dict["variable"];
+	w.id=2
+	w.name="variable"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=818
+	w.srcEnd=938
+	w.code=function(){
+	var name=f.getToken();
+	f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) );
+	f.ram.push( 0 ); 
+	}
+W3 code value ( n <name> -- ) f.addWord( f.createWord( name, f.doVal, "parm", n ) ); end-code
+	w=f.dict["value"];
+	w.id=3
+	w.name="value"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=941
+	w.srcEnd=1031
+	w.code=function(){
+	var name=f.getToken(),n=f.dStk.pop();
+	f.addWord( f.createWord( name, f.doVal, "parm", n ) ); 
+	}
+W4 code immediate ( -- ) f.last.immediate = true; end-code
+	w=f.dict["immediate"];
+	w.id=4
+	w.name="immediate"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1034
+	w.srcEnd=1089
+	w.code=function(){
+	f.last.immediate = true; 
+	}
+W5 code compile-only ( -- ) f.last.compileOnly = true; end-code
+	w=f.dict["compile-only"];
+	w.id=5
+	w.name="compile-only"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1092
+	w.srcEnd=1152
+	w.code=function(){
+	f.last.compileOnly = true; 
+	}
+W6 code : ( <name> -- ) f.createWord( name, f.doCol, "parm", [] ), f.compiling = true; end-code
+	w=f.dict[":"];
+	w.id=6
+	w.name=":"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1155
+	w.srcEnd=1247
+	w.code=function(){
+	var name=f.getToken();
+	f.createWord( name, f.doCol, "parm", [] ), f.compiling = true; 
+	}
+W7 code ; ( -- ) f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;
+	end-code immediate compile-only
+	w=f.dict[";"];
+	w.id=7
+	w.name=";"
+	w.immediate=true
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1250
+	w.srcEnd=1346
+	w.code=function(){
+	f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;
+	
+	}
+W8 code doLit ( -- n ) n=f.head.parm[f.head.ip++]; end-code compile-only
+	w=f.dict["doLit"];
+	w.id=8
+	w.name="doLit"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1372
+	w.srcEnd=1428
+	w.code=function(){
+	var n;
+	n=f.head.parm[f.head.ip++]; 
+	f.dStk.push(n)
+	}
+W9 code doStr ( -- str ) str=f.head.parm[f.head.ip++]; end-code compile-only
+	w=f.dict["doStr"];
+	w.id=9
+	w.name="doStr"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1444
+	w.srcEnd=1504
+	w.code=function(){
+	var str;
+	str=f.head.parm[f.head.ip++]; 
+	f.dStk.push(str)
+	}
+W10 code doRet ( -- ) f.doRet(); end-code compile-only
+	w=f.dict["doRet"];
+	w.id=10
+	w.name="doRet"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1520
+	w.srcEnd=1557
+	w.code=function(){
+	f.doRet(); 
+	}
+W11 code exit ( -- ) f.doRet(); end-code compile-only
+	w=f.dict["exit"];
+	w.id=11
+	w.name="exit"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1573
+	w.srcEnd=1609
+	w.code=function(){
+	f.doRet(); 
+	}
+W12 code ?exit ( flag -- ) if( flag ) f.doRet(); end-code compile-only
+	w=f.dict["?exit"];
+	w.id=12
+	w.name="?exit"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1625
+	w.srcEnd=1678
+	w.code=function(){
+	var flag=f.dStk.pop();
+	if( flag ) f.doRet(); 
+	}
+W13 code doFor ( n -- ) f.doFor( n ); end-code compile-only
+	w=f.dict["doFor"];
+	w.id=13
+	w.name="doFor"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1694
+	w.srcEnd=1736
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.doFor( n ); 
+	}
+W14 code doNext ( -- ) f.doNext(); end-code compile-only
+	w=f.dict["doNext"];
+	w.id=14
+	w.name="doNext"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1752
+	w.srcEnd=1791
+	w.code=function(){
+	f.doNext(); 
+	}
+W15 code doIf ( n -- ) f.zBranch( n ); end-code compile-only
+	w=f.dict["doIf"];
+	w.id=15
+	w.name="doIf"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1807
+	w.srcEnd=1850
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.zBranch( n ); 
+	}
+W16 code doElse ( -- ) f.branch(); end-code compile-only
+	w=f.dict["doElse"];
+	w.id=16
+	w.name="doElse"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1866
+	w.srcEnd=1905
+	w.code=function(){
+	f.branch(); 
+	}
+W17 code doThen ( -- ) end-code compile-only
+	w=f.dict["doThen"];
+	w.id=17
+	w.name="doThen"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1921
+	w.srcEnd=1948
+	w.code=function(){
+	}
+W18 code doBegin ( -- ) end-code compile-only
+	w=f.dict["doBegin"];
+	w.id=18
+	w.name="doBegin"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=1964
+	w.srcEnd=1992
+	w.code=function(){
+	}
+W19 code doAgain ( -- ) f.branch(); end-code compile-only
+	w=f.dict["doAgain"];
+	w.id=19
+	w.name="doAgain"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2008
+	w.srcEnd=2048
+	w.code=function(){
+	f.branch(); 
+	}
+W20 code doUntil ( n -- ) f.zBranch( n ); end-code compile-only
+	w=f.dict["doUntil"];
+	w.id=20
+	w.name="doUntil"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2064
+	w.srcEnd=2110
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.zBranch( n ); 
+	}
+W21 code doWhile ( n -- ) f.zBranch( n ); end-code compile-only
+	w=f.dict["doWhile"];
+	w.id=21
+	w.name="doWhile"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2126
+	w.srcEnd=2172
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.zBranch( n ); 
+	}
+W22 code doRepeat ( -- ) f.branch(); end-code compile-only
+	w=f.dict["doRepeat"];
+	w.id=22
+	w.name="doRepeat"
+	w.compileOnly=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2188
+	w.srcEnd=2229
+	w.code=function(){
+	f.branch(); 
+	}
+W23 code ( ( <str>) -- ) end-code immediate
+	w=f.dict["("];
+	w.id=23
+	w.name="("
+	w.immediate=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2245
+	w.srcEnd=2274
+	w.code=function(){
+	var str=f.getToken(')');
+	}
+W24 code \ ( <str>\n -- ) end-code immediate
+	w=f.dict["\"];
+	w.id=24
+	w.name="\"
+	w.immediate=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2287
+	w.srcEnd=2317
+	w.code=function(){
+	var str=f.getToken('\\n');
+	}
+W25 code cr ( -- ) f.cr(); end-code
+	w=f.dict["cr"];
+	w.id=25
+	w.name="cr"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2363
+	w.srcEnd=2394
+	w.code=function(){
+	f.cr(); 
+	}
+W26 code space ( -- ) f.emit( 0x20 ); end-code
+	w=f.dict["space"];
+	w.id=26
+	w.name="space"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2397
+	w.srcEnd=2439
+	w.code=function(){
+	f.emit( 0x20 ); 
+	}
+W27 code spaces ( n -- ) for( var i=0; i<n; i++ ) f.emit( 0x20 ); end-code
+	w=f.dict["spaces"];
+	w.id=27
+	w.name="spaces"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2442
+	w.srcEnd=2512
+	w.code=function(){
+	var n=f.dStk.pop();
+	for( var i=0; i<n; i++ ) f.emit( 0x20 ); 
+	}
+W28 code emit ( charCode -- ) f.emit( charCode ); end-code
+	w=f.dict["emit"];
+	w.id=28
+	w.name="emit"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2515
+	w.srcEnd=2569
+	w.code=function(){
+	var charCode=f.dStk.pop();
+	f.emit( charCode ); 
+	}
+W29 code type ( obj -- ) f.print( obj ); end-code
+	w=f.dict["type"];
+	w.id=29
+	w.name="type"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2572
+	w.srcEnd=2616
+	w.code=function(){
+	var obj=f.dStk.pop();
+	f.print( obj ); 
+	}
+W30 code .( ( <str>) -- ) f.print( str ); end-code
+	w=f.dict[".("];
+	w.id=30
+	w.name=".("
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2619
+	w.srcEnd=2664
+	w.code=function(){
+	var str=f.getToken(')');
+	f.print( str ); 
+	}
+W31 code . ( n -- ) f.print( f.toString( n ) + " " ); end-code
+	w=f.dict["."];
+	w.id=31
+	w.name="."
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2667
+	w.srcEnd=2724
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.print( f.toString( n ) + " " ); 
+	}
+W32 code .r ( n width -- ) f.print( f.dotR( n, width, " " ) ); end-code
+	w=f.dict[".r"];
+	w.id=32
+	w.name=".r"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2727
+	w.srcEnd=2793
+	w.code=function(){
+	var width=f.dStk.pop(),n=f.dStk.pop();
+	f.print( f.dotR( n, width, " " ) ); 
+	}
+W33 code .0r ( n width -- ) f.print( f.dotR( n, width, "0" ) ); end-code
+	w=f.dict[".0r"];
+	w.id=33
+	w.name=".0r"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2796
+	w.srcEnd=2863
+	w.code=function(){
+	var width=f.dStk.pop(),n=f.dStk.pop();
+	f.print( f.dotR( n, width, "0" ) ); 
+	}
+W34 code + ( a b -- a+b ) end-code
+	w=f.dict["+"];
+	w.id=34
+	w.name="+"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2866
+	w.srcEnd=2896
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a+b)
+	}
+W35 code - ( a b -- a-b ) end-code
+	w=f.dict["-"];
+	w.id=35
+	w.name="-"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2899
+	w.srcEnd=2929
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a-b)
+	}
+W36 code * ( a b -- a*b ) end-code
+	w=f.dict["*"];
+	w.id=36
+	w.name="*"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2932
+	w.srcEnd=2962
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a*b)
+	}
+W37 code / ( a b -- a/b ) end-code
+	w=f.dict["/"];
+	w.id=37
+	w.name="/"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2965
+	w.srcEnd=2995
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a/b)
+	}
+W38 code mod ( a b -- a%b ) end-code
+	w=f.dict["mod"];
+	w.id=38
+	w.name="mod"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=2998
+	w.srcEnd=3030
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a%b)
+	}
+W39 code ** ( a b -- a**b ) end-code
+	w=f.dict["**"];
+	w.id=39
+	w.name="**"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3033
+	w.srcEnd=3065
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a**b)
+	}
+W40 code drop ( n -- ) end-code
+	w=f.dict["drop"];
+	w.id=40
+	w.name="drop"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3068
+	w.srcEnd=3095
+	w.code=function(){
+	var n=f.dStk.pop();
+	}
+W41 code nip ( a b -- b ) end-code
+	w=f.dict["nip"];
+	w.id=41
+	w.name="nip"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3098
+	w.srcEnd=3128
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(b)
+	}
+W42 code dup ( n -- n n ) end-code
+	w=f.dict["dup"];
+	w.id=42
+	w.name="dup"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3131
+	w.srcEnd=3161
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.dStk.push(n);f.dStk.push(n)
+	}
+W43 code over ( a b -- a b a ) end-code
+	w=f.dict["over"];
+	w.id=43
+	w.name="over"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3164
+	w.srcEnd=3199
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a);f.dStk.push(b);f.dStk.push(a)
+	}
+W44 code pick // ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
+	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
+	end-code
+	w=f.dict["pick"];
+	w.id=44
+	w.name="pick"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3202
+	w.srcEnd=3324
+	w.code=function(){
+	// ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
+	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
+	
+	}
+W45 code swap ( a b -- b a ) end-code
+	w=f.dict["swap"];
+	w.id=45
+	w.name="swap"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3327
+	w.srcEnd=3360
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(b);f.dStk.push(a)
+	}
+W46 code rot ( a b c -- b c a ) end-code
+	w=f.dict["rot"];
+	w.id=46
+	w.name="rot"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3363
+	w.srcEnd=3399
+	w.code=function(){
+	var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(b);f.dStk.push(c);f.dStk.push(a)
+	}
+W47 code -rot ( a b c -- c a b ) end-code
+	w=f.dict["-rot"];
+	w.id=47
+	w.name="-rot"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3402
+	w.srcEnd=3439
+	w.code=function(){
+	var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(c);f.dStk.push(a);f.dStk.push(b)
+	}
+W48 code roll // ( ni .. n1 n0 i -- .. n1 n0 ni )
+	var d = f.dStk, t = d.length - 2, i = d.pop(), ni = d[t-i];
+	while( i ){ d[t-i] = d[t-i+1]; i--; } d[t] = ni;
+	end-code
+	w=f.dict["roll"];
+	w.id=48
+	w.name="roll"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3442
+	w.srcEnd=3608
+	w.code=function(){
+	// ( ni .. n1 n0 i -- .. n1 n0 ni )
+	var d = f.dStk, t = d.length - 2, i = d.pop(), ni = d[t-i];
+	while( i ){ d[t-i] = d[t-i+1]; i--; } d[t] = ni;
+	
+	}
+W49 code base ( -- addr ) addr = f.base; end-code
+	w=f.dict["base"];
+	w.id=49
+	w.name="base"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3611
+	w.srcEnd=3656
+	w.code=function(){
+	var addr;
+	addr = f.base; 
+	f.dStk.push(addr)
+	}
+W50 code >in ( -- addr ) addr = f.toIn; end-code
+	w=f.dict[">in"];
+	w.id=50
+	w.name=">in"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3659
+	w.srcEnd=3703
+	w.code=function(){
+	var addr;
+	addr = f.toIn; 
+	f.dStk.push(addr)
+	}
+W51 code tracing ( -- flag ) flag = f.tracing; end-code
+	w=f.dict["tracing"];
+	w.id=51
+	w.name="tracing"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3706
+	w.srcEnd=3757
+	w.code=function(){
+	var flag;
+	flag = f.tracing; 
+	f.dStk.push(flag)
+	}
+W52 code @ ( addr -- value ) value = f.ram[addr]; end-code
+	w=f.dict["@"];
+	w.id=52
+	w.name="@"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3760
+	w.srcEnd=3814
+	w.code=function(){
+	var addr=f.dStk.pop(),value;
+	value = f.ram[addr]; 
+	f.dStk.push(value)
+	}
+W53 code ! ( value addr -- ) f.ram[addr] = value; end-code
+	w=f.dict["!"];
+	w.id=53
+	w.name="!"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3817
+	w.srcEnd=3871
+	w.code=function(){
+	var addr=f.dStk.pop(),value=f.dStk.pop();
+	f.ram[addr] = value; 
+	}
+W54 code ] ( -- ) f.compiling = true; end-code
+	w=f.dict["]"];
+	w.id=54
+	w.name="]"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3874
+	w.srcEnd=3916
+	w.code=function(){
+	f.compiling = true; 
+	}
+W55 code [ ( -- ) f.compiling = false; end-code
+	w=f.dict["["];
+	w.id=55
+	w.name="["
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3919
+	w.srcEnd=3962
+	w.code=function(){
+	f.compiling = false; 
+	}
+W56 code token ( <token> -- str ) str = token; end-code
+	w=f.dict["token"];
+	w.id=56
+	w.name="token"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=3965
+	w.srcEnd=4016
+	w.code=function(){
+	var token=f.getToken(),str;
+	str = token; 
+	f.dStk.push(str)
+	}
+W57 code , ( n -- ) f.compileOffset( n ); end-code
+	w=f.dict[","];
+	w.id=57
+	w.name=","
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4019
+	w.srcEnd=4065
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.compileOffset( n ); 
+	}
+W58 code word, ( w -- ) f.compileWord( w ); end-code
+	w=f.dict["word,"];
+	w.id=58
+	w.name="word,"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4068
+	w.srcEnd=4116
+	w.code=function(){
+	var w=f.dStk.pop();
+	f.compileWord( w ); 
+	}
+W59 code compile ( -- ) f.compileWord( f.head.parm[f.head.ip++] ); end-code
+	w=f.dict["compile"];
+	w.id=59
+	w.name="compile"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4119
+	w.srcEnd=4190
+	w.code=function(){
+	f.compileWord( f.head.parm[f.head.ip++] ); 
+	}
+W60 code literal ( n -- ) f.compileNumber( n ); end-code immediate
+	w=f.dict["literal"];
+	w.id=60
+	w.name="literal"
+	w.immediate=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4193
+	w.srcEnd=4245
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.compileNumber( n ); 
+	}
+W61 code execute ( w -- ) f.executeWord( w ); end-code
+	w=f.dict["execute"];
+	w.id=61
+	w.name="execute"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4258
+	w.srcEnd=4308
+	w.code=function(){
+	var w=f.dStk.pop();
+	f.executeWord( w ); 
+	}
+W62 code find ( str -- w ) w=f.dict( str ); end-code
+	w=f.dict["find"];
+	w.id=62
+	w.name="find"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4311
+	w.srcEnd=4359
+	w.code=function(){
+	var str=f.dStk.pop(),w;
+	w=f.dict( str ); 
+	f.dStk.push(w)
+	}
+W63 code ' ( <name> -- w ) w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); end-code
+	w=f.dict["'"];
+	w.id=63
+	w.name="'"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4362
+	w.srcEnd=4448
+	w.code=function(){
+	var name=f.getToken(),w;
+	w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); 
+	f.dStk.push(w)
+	}
+W64 code words ( -- )
+	f.cr(
+		Object.keys( f.dict )
+		.sort( (a,b) => f.dict[a].id-f.dict[b].id )
+		.map( name => "W" + f.dict[name].id + " " + name )
+		.join( " " )
+	);
+	end-code
+	w=f.dict["words"];
+	w.id=64
+	w.name="words"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4451
+	w.srcEnd=4627
+	w.code=function(){
+		f.cr(
+		Object.keys( f.dict )
+		.sort( (a,b) => f.dict[a].id-f.dict[b].id )
+		.map( name => "W" + f.dict[name].id + " " + name )
+		.join( " " )
+	);
+	
+	}
+W65 code (see) ( w -- ) 
+	var inp = f.inps[w.iInp], src;
+	if(w.srcBgn)
+		src = inp.substring( w.srcBgn, w.srcEnd );
+	else
+		src = w.src;
+	var definedBy = w.definedBy, n; 
+	if( definedBy == 'alias' ){ 
+		var L = Object.keys( f.dict ).sort( function( a, b ){ 
+			return f.dict[a].id - f.dict[b].id; 
+	}).slice( 0, w.id ); 
+	for( var i = L.length - 1; i >= 0; i -- ){ 
+		n = f.dict[L[i]]; 
+		if( n.code == w.code ) break; 
+	} 
+	if( i >= 0 ) src = "' " + n.name + " " + src; 
+	} else if( definedBy == 'constant' || definedBy == 'value' ){  
+		var m = w.code.toString().match( /function\(\)\{f\.dStk\.push\((.+)\);\}/ );
+		src = ( m ? m[1] : JSON.stringify(w.parm) )+ " " + src; 
+	} 
+	if( w.immediate ) src += " immediate"; 
+	if( w.compileOnly ) src += " compile-only"; 
+	f.printLn( 'W' + w.id + ' ' + src ); 
+	end-code
+	w=f.dict["(see)"];
+	w.id=65
+	w.name="(see)"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=4630
+	w.srcEnd=5440
+	w.code=function(){
+	var w=f.dStk.pop();
+	
+	var inp = f.inps[w.iInp], src;
+	if(w.srcBgn)
+		src = inp.substring( w.srcBgn, w.srcEnd );
+	else
+		src = w.src;
+	var definedBy = w.definedBy, n; 
+	if( definedBy == 'alias' ){ 
+		var L = Object.keys( f.dict ).sort( function( a, b ){ 
+			return f.dict[a].id - f.dict[b].id; 
+	}).slice( 0, w.id ); 
+	for( var i = L.length - 1; i >= 0; i -- ){ 
+		n = f.dict[L[i]]; 
+		if( n.code == w.code ) break; 
+	} 
+	if( i >= 0 ) src = "' " + n.name + " " + src; 
+	} else if( definedBy == 'constant' || definedBy == 'value' ){  
+		var m = w.code.toString().match( /function\(\)\{f\.dStk\.push\((.+)\);\}/ );
+		src = ( m ? m[1] : JSON.stringify(w.parm) )+ " " + src; 
+	} 
+	if( w.immediate ) src += " immediate"; 
+	if( w.compileOnly ) src += " compile-only"; 
+	f.printLn( 'W' + w.id + ' ' + src ); 
+	
+	}
+W66 code seeAll ( -- )
+	for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
+	end-code
+	w=f.dict["seeAll"];
+	w.id=66
+	w.name="seeAll"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5443
+	w.srcEnd=5549
+	w.code=function(){
+		for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
+	
+	}
+W67 code alias ( w <name> -- )
+	var n = f.createWord( name, w.code );
+	if( w.parm ) n.parm = w.parm;
+	f.addWord( n );
+	end-code
+	w=f.dict["alias"];
+	w.id=67
+	w.name="alias"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5552
+	w.srcEnd=5675
+	w.code=function(){
+	var name=f.getToken(),w=f.dStk.pop();
+		var n = f.createWord( name, w.code );
+	if( w.parm ) n.parm = w.parm;
+	f.addWord( n );
+	
+	}
+W68 code > ( a b -- a>b ) end-code
+	w=f.dict[">"];
+	w.id=68
+	w.name=">"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5678
+	w.srcEnd=5708
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a>b)
+	}
+W69 code < ( a b -- a<b ) end-code
+	w=f.dict["<"];
+	w.id=69
+	w.name="<"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5710
+	w.srcEnd=5740
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a<b)
+	}
+W70 code >= ( a b -- a>=b ) end-code
+	w=f.dict[">="];
+	w.id=70
+	w.name=">="
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5742
+	w.srcEnd=5774
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a>=b)
+	}
+W71 code <= ( a b -- a<=b ) end-code
+	w=f.dict["<="];
+	w.id=71
+	w.name="<="
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5776
+	w.srcEnd=5808
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a<=b)
+	}
+W72 code = ( a b -- a=b ) end-code
+	w=f.dict["="];
+	w.id=72
+	w.name="="
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5810
+	w.srcEnd=5840
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a=b)
+	}
+W73 code <> ( a b -- a!=b ) end-code
+	w=f.dict["<>"];
+	w.id=73
+	w.name="<>"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5842
+	w.srcEnd=5874
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a!=b)
+	}
+W74 code 1+ ( n -- n+1 ) end-code
+	w=f.dict["1+"];
+	w.id=74
+	w.name="1+"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5876
+	w.srcEnd=5905
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.dStk.push(n+1)
+	}
+W75 code 1- ( n -- n-1 ) end-code
+	w=f.dict["1-"];
+	w.id=75
+	w.name="1-"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5907
+	w.srcEnd=5936
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.dStk.push(n-1)
+	}
+W76 code 2+ ( n -- n+2 ) end-code
+	w=f.dict["2+"];
+	w.id=76
+	w.name="2+"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5938
+	w.srcEnd=5967
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.dStk.push(n+2)
+	}
+W77 code 2- ( n -- n-2 ) end-code
+	w=f.dict["2-"];
+	w.id=77
+	w.name="2-"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=5969
+	w.srcEnd=5998
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.dStk.push(n-2)
+	}
+W78 code 2dup ( a b -- a b a b ) end-code
+	w=f.dict["2dup"];
+	w.id=78
+	w.name="2dup"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6000
+	w.srcEnd=6037
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a);f.dStk.push(b);f.dStk.push(a);f.dStk.push(b)
+	}
+W79 code 2drop ( a b -- ) end-code
+	w=f.dict["2drop"];
+	w.id=79
+	w.name="2drop"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6039
+	w.srcEnd=6069
+	w.code=function(){
+	var b=f.dStk.pop(),a=f.dStk.pop();
+	}
+W80 code 3drop ( a b c -- ) end-code
+	w=f.dict["3drop"];
+	w.id=80
+	w.name="3drop"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6071
+	w.srcEnd=6103
+	w.code=function(){
+	var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
+	}
+W81 code 2over ( a b c d -- a b c d a b ) end-code
+	w=f.dict["2over"];
+	w.id=81
+	w.name="2over"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6105
+	w.srcEnd=6151
+	w.code=function(){
+	var d=f.dStk.pop(),c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
+	f.dStk.push(a);f.dStk.push(b);f.dStk.push(c);f.dStk.push(d);f.dStk.push(a);f.dStk.push(b)
+	}
+W82 code depth ( -- n ) n=f.dStk.length; end-code
+	w=f.dict["depth"];
+	w.id=82
+	w.name="depth"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6153
+	w.srcEnd=6198
+	w.code=function(){
+	var n;
+	n=f.dStk.length; 
+	f.dStk.push(n)
+	}
+W83 code r@ ( -- n ) n=f.rStk[f.rStk.length-1]; end-code
+	w=f.dict["r@"];
+	w.id=83
+	w.name="r@"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6200
+	w.srcEnd=6252
+	w.code=function(){
+	var n;
+	n=f.rStk[f.rStk.length-1]; 
+	f.dStk.push(n)
+	}
+W84 ' r@ alias i
+	w=f.dict["i"];
+	w.id=84
+	w.name="i"
+	w.definedBy="alias"
+	w.iInp=0
+	w.srcBgn=6259
+	w.srcEnd=6266
+	w.code=function(){
+	var n;
+	n=f.rStk[f.rStk.length-1]; 
+	f.dStk.push(n)
+	}
+W85 code r> ( -- n ) n=f.rStk.pop(); end-code
+	w=f.dict["r>"];
+	w.id=85
+	w.name="r>"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6268
+	w.srcEnd=6309
+	w.code=function(){
+	var n;
+	n=f.rStk.pop(); 
+	f.dStk.push(n)
+	}
+W86 code >r ( n -- ) f.rStk.push(n); end-code
+	w=f.dict[">r"];
+	w.id=86
+	w.name=">r"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6311
+	w.srcEnd=6352
+	w.code=function(){
+	var n=f.dStk.pop();
+	f.rStk.push(n); 
+	}
+W87 code here ( -- n ) n=f.last.parm.length; end-code
+	w=f.dict["here"];
+	w.id=87
+	w.name="here"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6354
+	w.srcEnd=6403
+	w.code=function(){
+	var n;
+	n=f.last.parm.length; 
+	f.dStk.push(n)
+	}
+W88 code compileTo ( n a -- ) f.last.parm[a]=n; end-code
+	w=f.dict["compileTo"];
+	w.id=88
+	w.name="compileTo"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6406
+	w.srcEnd=6458
+	w.code=function(){
+	var a=f.dStk.pop(),n=f.dStk.pop();
+	f.last.parm[a]=n; 
+	}
+W89 code bl ( -- 32 ) end-code
+	w=f.dict["bl"];
+	w.id=89
+	w.name="bl"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6461
+	w.srcEnd=6487
+	w.code=function(){
+	f.dStk.push(32)
+	}
+W90 code quote ( -- 34 ) end-code
+	w=f.dict["quote"];
+	w.id=90
+	w.name="quote"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6490
+	w.srcEnd=6519
+	w.code=function(){
+	f.dStk.push(34)
+	}
+W91 code word ( delimiter -- str ) str = f.getToken( delimiter ); end-code
+	w=f.dict["word"];
+	w.id=91
+	w.name="word"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6522
+	w.srcEnd=6592
+	w.code=function(){
+	var delimiter=f.dStk.pop(),str;
+	str = f.getToken( delimiter ); 
+	f.dStk.push(str)
+	}
+W92 code (to) ( n w -- ) if( w.definedBy != 'value' )f.panic( 'cannot set value to ' + w.name ); w.parm = n; end-code
+	w=f.dict["(to)"];
+	w.id=92
+	w.name="(to)"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6594
+	w.srcEnd=6707
+	w.code=function(){
+	var w=f.dStk.pop(),n=f.dStk.pop();
+	if( w.definedBy != 'value' )f.panic( 'cannot set value to ' + w.name ); w.parm = n; 
+	}
+W93 code (+to) ( n w -- ) if( w.definedBy != 'value' )f.panic( 'cannot add value to ' + w.name ); w.parm += n; end-code
+	w=f.dict["(+to)"];
+	w.id=93
+	w.name="(+to)"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6709
+	w.srcEnd=6824
+	w.code=function(){
+	var w=f.dStk.pop(),n=f.dStk.pop();
+	if( w.definedBy != 'value' )f.panic( 'cannot add value to ' + w.name ); w.parm += n; 
+	}
+W94 code compiling ( -- flag ) flag = f.compiling; end-code
+	w=f.dict["compiling"];
+	w.id=94
+	w.name="compiling"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6826
+	w.srcEnd=6881
+	w.code=function(){
+	var flag;
+	flag = f.compiling; 
+	f.dStk.push(flag)
+	}
+W95 code ." ( <str>" -- ) f.compile( f.dict.doStr ); f.compile( str ); f.compile( f.dict.type ); end-code immediate
+	w=f.dict[".""];
+	w.id=95
+	w.name=".""
+	w.immediate=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6884
+	w.srcEnd=6985
+	w.code=function(){
+	var str=f.getToken('"');
+	f.compile( f.dict.doStr ); f.compile( str ); f.compile( f.dict.type ); 
+	}
+W96 code $" ( <str>" -- i:str )
+	if( f.compiling ) f.compile( f.dict.doStr ), f.compile( str );
+	end-code immediate
+	w=f.dict["$""];
+	w.id=96
+	w.name="$""
+	w.immediate=true
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=6998
+	w.srcEnd=7099
+	w.code=function(){
+	var str=f.getToken('"');
+		if( f.compiling ) f.compile( f.dict.doStr ), f.compile( str );
+	
+	if(!f.compiling)f.dStk.push(str)
+	}
+W97 : see ( <name> -- ) ' (see) ;
+	w=f.dict["see"];
+	w.id=97
+	w.name="see"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7114
+	w.srcEnd=7143
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W65 (see)
+	2 W10 doRet
+W98 : ? ( addr -- ) @ . ;
+	w=f.dict["?"];
+	w.id=98
+	w.name="?"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7146
+	w.srcEnd=7167
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W52 @
+	1 W31 .
+	2 W10 doRet
+W99 : on ( addr -- ) 1 swap ! ;
+	w=f.dict["on"];
+	w.id=99
+	w.name="on"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7170
+	w.srcEnd=7197
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 1
+	2 W45 swap
+	3 W53 !
+	4 W10 doRet
+W100 : off ( addr -- ) 0 swap ! ;
+	w=f.dict["off"];
+	w.id=100
+	w.name="off"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7200
+	w.srcEnd=7228
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 0
+	2 W45 swap
+	3 W53 !
+	4 W10 doRet
+W101 : (trace) ( w -- ) tracing on execute tracing off ;
+	w=f.dict["(trace)"];
+	w.id=101
+	w.name="(trace)"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7231
+	w.srcEnd=7282
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W51 tracing
+	1 W99 on
+	2 W61 execute
+	3 W51 tracing
+	4 W100 off
+	5 W10 doRet
+W102 : trace ( <word> -- ) ' (trace) ;
+	w=f.dict["trace"];
+	w.id=102
+	w.name="trace"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7285
+	w.srcEnd=7318
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W101 (trace)
+	2 W10 doRet
+W103 : hex ( -- ) 16 base ! ;
+	w=f.dict["hex"];
+	w.id=103
+	w.name="hex"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7321
+	w.srcEnd=7345
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 16
+	2 W49 base
+	3 W53 !
+	4 W10 doRet
+W104 : decimal ( -- ) 10 base ! ;
+	w=f.dict["decimal"];
+	w.id=104
+	w.name="decimal"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7347
+	w.srcEnd=7375
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 10
+	2 W49 base
+	3 W53 !
+	4 W10 doRet
+W105 : h. ( number -- ) base @ swap hex . base ! ;
+	w=f.dict["h."];
+	w.id=105
+	w.name="h."
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7378
+	w.srcEnd=7423
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W49 base
+	1 W52 @
+	2 W45 swap
+	3 W103 hex
+	4 W31 .
+	5 W49 base
+	6 W53 !
+	7 W10 doRet
+W106 : h.r ( number n -- ) base @ -rot hex .r base ! ;
+	w=f.dict["h.r"];
+	w.id=106
+	w.name="h.r"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7426
+	w.srcEnd=7475
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W49 base
+	1 W52 @
+	2 W47 -rot
+	3 W103 hex
+	4 W32 .r
+	5 W49 base
+	6 W53 !
+	7 W10 doRet
+W107 : h.0r ( number n -- ) base @ -rot hex .0r base ! ;
+	w=f.dict["h.0r"];
+	w.id=107
+	w.name="h.0r"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7478
+	w.srcEnd=7529
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W49 base
+	1 W52 @
+	2 W47 -rot
+	3 W103 hex
+	4 W33 .0r
+	5 W49 base
+	6 W53 !
+	7 W10 doRet
+W108 : forward, ( a -- ) here over - swap compileTo ;
+	w=f.dict["forward,"];
+	w.id=108
+	w.name="forward,"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7532
+	w.srcEnd=7580
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W87 here
+	1 W43 over
+	2 W35 -
+	3 W45 swap
+	4 W88 compileTo
+	5 W10 doRet
+W109 : backward, ( a -- ) here - , ;
+	w=f.dict["backward,"];
+	w.id=109
+	w.name="backward,"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7583
+	w.srcEnd=7614
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W87 here
+	1 W35 -
+	2 W57 ,
+	3 W10 doRet
+W110 : for ( -- a ) compile doFor here ; immediate
+	w=f.dict["for"];
+	w.id=110
+	w.name="for"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7617
+	w.srcEnd=7652
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W13 doFor
+	2 W87 here
+	3 W10 doRet
+W111 : next ( a -- ) compile doNext backward, ; immediate
+	w=f.dict["next"];
+	w.id=111
+	w.name="next"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7665
+	w.srcEnd=7707
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W14 doNext
+	2 W109 backward,
+	3 W10 doRet
+W112 : if ( -- a ) compile doIf here 0 , ; immediate
+	w=f.dict["if"];
+	w.id=112
+	w.name="if"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7720
+	w.srcEnd=7757
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W15 doIf
+	2 W87 here
+	3 W8 doLit
+	4 0
+	5 W57 ,
+	6 W10 doRet
+W113 : else ( a -- b ) compile doElse here 0 , swap forward, ; immediate
+	w=f.dict["else"];
+	w.id=113
+	w.name="else"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7770
+	w.srcEnd=7827
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W16 doElse
+	2 W87 here
+	3 W8 doLit
+	4 0
+	5 W57 ,
+	6 W45 swap
+	7 W108 forward,
+	8 W10 doRet
+W114 : then ( a -- ) compile doThen forward, ; immediate
+	w=f.dict["then"];
+	w.id=114
+	w.name="then"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7840
+	w.srcEnd=7881
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W17 doThen
+	2 W108 forward,
+	3 W10 doRet
+W115 : begin ( -- a ) compile doBegin here ; immediate
+	w=f.dict["begin"];
+	w.id=115
+	w.name="begin"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7894
+	w.srcEnd=7933
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W18 doBegin
+	2 W87 here
+	3 W10 doRet
+W116 : again ( a -- ) compile doAgain backward, ; immediate
+	w=f.dict["again"];
+	w.id=116
+	w.name="again"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=7946
+	w.srcEnd=7990
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W19 doAgain
+	2 W109 backward,
+	3 W10 doRet
+W117 : until ( a -- ) compile doUntil backward, ; immediate
+	w=f.dict["until"];
+	w.id=117
+	w.name="until"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8003
+	w.srcEnd=8047
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W20 doUntil
+	2 W109 backward,
+	3 W10 doRet
+W118 : while ( a -- a b ) compile doWhile here 0 , ; immediate
+	w=f.dict["while"];
+	w.id=118
+	w.name="while"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8060
+	w.srcEnd=8107
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W21 doWhile
+	2 W87 here
+	3 W8 doLit
+	4 0
+	5 W57 ,
+	6 W10 doRet
+W119 : repeat ( a b -- ) compile doRepeat swap backward, forward, ; immediate
+	w=f.dict["repeat"];
+	w.id=119
+	w.name="repeat"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8120
+	w.srcEnd=8182
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W59 compile
+	1 W22 doRepeat
+	2 W45 swap
+	3 W109 backward,
+	4 W108 forward,
+	5 W10 doRet
+W120 : t9 ( n -- ) 8 for dup 9 i - * 3 .r next drop cr ;
+	w=f.dict["t9"];
+	w.id=120
+	w.name="t9"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8195
+	w.srcEnd=8246
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 8
+	2 W13 doFor
+	3 W42 dup
+	4 W8 doLit
+	5 9
+	6 W84 i
+	7 W35 -
+	8 W36 *
+	9 W8 doLit
+	10 3
+	11 W32 .r
+	12 W14 doNext
+	13 -10
+	14 W40 drop
+	15 W25 cr
+	16 W10 doRet
+W121 : t99 ( -- ) 1 begin dup 10 < while dup t9 1+ repeat drop ;
+	w=f.dict["t99"];
+	w.id=121
+	w.name="t99"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8249
+	w.srcEnd=8308
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W8 doLit
+	1 1
+	2 W18 doBegin
+	3 W42 dup
+	4 W8 doLit
+	5 10
+	6 W69 <
+	7 W21 doWhile
+	8 6
+	9 W42 dup
+	10 W120 t9
+	11 W74 1+
+	12 W22 doRepeat
+	13 -10
+	14 W40 drop
+	15 W10 doRet
+W122 : [compile] ( <name> -- ) ' , ; immediate
+	w=f.dict["[compile]"];
+	w.id=122
+	w.name="[compile]"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8311
+	w.srcEnd=8342
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W57 ,
+	2 W10 doRet
+W123 : to ( n <name> -- ) ' compiling if [compile] literal compile (to) else (to) then ; immediate
+	w=f.dict["to"];
+	w.id=123
+	w.name="to"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8355
+	w.srcEnd=8438
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W94 compiling
+	2 W15 doIf
+	3 6
+	4 W60 literal
+	5 W59 compile
+	6 W92 (to)
+	7 W16 doElse
+	8 3
+	9 W92 (to)
+	10 W17 doThen
+	11 W10 doRet
+W124 : +to ( n <name> -- ) ' compiling if [compile] literal compile (+to) else (+to) then ; immediate
+	w=f.dict["+to"];
+	w.id=124
+	w.name="+to"
+	w.immediate=true
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8451
+	w.srcEnd=8537
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W94 compiling
+	2 W15 doIf
+	3 6
+	4 W60 literal
+	5 W59 compile
+	6 W93 (+to)
+	7 W16 doElse
+	8 3
+	9 W93 (+to)
+	10 W17 doThen
+	11 W10 doRet
+W125 : .s depth if depth 1- for r@ pick . next else ." empty " then cr ;
+	w=f.dict[".s"];
+	w.id=125
+	w.name=".s"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=8550
+	w.srcEnd=8617
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W82 depth
+	1 W15 doIf
+	2 11
+	3 W82 depth
+	4 W75 1-
+	5 W13 doFor
+	6 W83 r@
+	7 W44 pick
+	8 W31 .
+	9 W14 doNext
+	10 -4
+	11 W16 doElse
+	12 5
+	13 W9 doStr
+	14 empty 
+	15 W29 type
+	16 W17 doThen
+	17 W25 cr
+	18 W10 doRet
+W126 code (seeWord) ( w -- )
+	f.dStk.push( w ),f.dict['(see)'].code();
+	console.log('	w=f.dict["'+w.name+'"];');
+	console.log('	w.id='+w.id);
+	console.log('	w.name="'+w.name+'"');
+	if(w.immediate)console.log('	w.immediate='+w.immediate);
+	if(w.compileOnly)console.log('	w.compileOnly='+w.compileOnly);
+	console.log('	w.definedBy="'+w.definedBy+'"');
+	console.log('	w.iInp='+w.iInp);
+	console.log('	w.srcBgn='+w.srcBgn);
+	console.log('	w.srcEnd='+w.srcEnd);
+	console.log('	w.code='+w.code);
+	if( w.parm ){
+		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
+			console.log( '	w.parm=' );
+			w.parm.forEach(( w, i ) => {
+				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
+				console.log( '	' + i + ' ' + t ); 
+			});
+		} else {
+			console.log( '	w.parm=' + JSON.stringify( w.parm ) );
+			if( w.definedBy == 'variable' )
+				console.log( '	f.ram[' + w.parm + ']=' + JSON.stringify( f.ram[w.parm] ) );
+		}
+	}
+	end-code
+	w=f.dict["(seeWord)"];
+	w.id=126
+	w.name="(seeWord)"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=8621
+	w.srcEnd=9585
+	w.code=function(){
+	var w=f.dStk.pop();
+		f.dStk.push( w ),f.dict['(see)'].code();
+	console.log('	w=f.dict["'+w.name+'"];');
+	console.log('	w.id='+w.id);
+	console.log('	w.name="'+w.name+'"');
+	if(w.immediate)console.log('	w.immediate='+w.immediate);
+	if(w.compileOnly)console.log('	w.compileOnly='+w.compileOnly);
+	console.log('	w.definedBy="'+w.definedBy+'"');
+	console.log('	w.iInp='+w.iInp);
+	console.log('	w.srcBgn='+w.srcBgn);
+	console.log('	w.srcEnd='+w.srcEnd);
+	console.log('	w.code='+w.code);
+	if( w.parm ){
+		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
+			console.log( '	w.parm=' );
+			w.parm.forEach(( w, i ) => {
+				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
+				console.log( '	' + i + ' ' + t ); 
+			});
+		} else {
+			console.log( '	w.parm=' + JSON.stringify( w.parm ) );
+			if( w.definedBy == 'variable' )
+				console.log( '	f.ram[' + w.parm + ']=' + JSON.stringify( f.ram[w.parm] ) );
+		}
+	}
+	
+	}
+W127 code seeAllWords ( -- )
+	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
+	end-code
+	w=f.dict["seeAllWords"];
+	w.id=127
+	w.name="seeAllWords"
+	w.definedBy="code"
+	w.iInp=0
+	w.srcBgn=9587
+	w.srcEnd=9703
+	w.code=function(){
+		for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
+	
+	}
+W128 : seeWord ( <name> -- ) ' (seeWord) ;
+	w=f.dict["seeWord"];
+	w.id=128
+	w.name="seeWord"
+	w.definedBy=":"
+	w.iInp=0
+	w.srcBgn=9706
+	w.srcEnd=9743
+	w.code=function doCol(){		// colon word handler
+		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+		while( f.head )
+			f.executeWord( f.head.parm[f.head.ip++] );
+	}
+	w.parm=
+	0 W63 '
+	1 W126 (seeWord)
+	2 W10 doRet

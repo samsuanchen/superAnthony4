@@ -1,5 +1,5 @@
 // OneWordVM1.js @ https://github.com/samsuanchen/superAnthony4
-const OneWordVM = function () {
+const OneWordVM = function OneWordVM () {
 	const f = {}; 				// the virtual machine
 	f.dStk = [];				// the data stack
 	f.rStk = [];				// the return stack
@@ -12,10 +12,16 @@ const OneWordVM = function () {
 	f.token = ""; 				// the working token
 	f.tib = ""; 		 		// the terminal input buffer
 	f.tob = "";					// the terminal output buffer
-	f.printLn = function( msg ){// print message
-		console.log( msg );
+	f.printLn = function printLn( msg ){// print message
+		console.log( f.tob + ( msg || '' ) ), f.tob = '';
 	}
-	f.panic = function( msg ){	// print given message and system info
+	f.print = function print( msg ){// print message
+		f.tob += ( msg || '' );
+		var lines = f.tob.split( '\n' );
+		f.tob = lines.pop();	// the last line is not printed
+		if( lines.length ) console.log( lines.join( '\n' ) );
+	}
+	f.panic = function panic( msg ){	// print given message and system info
 		var m = {};
 		m.msg = msg, m.token = f.token, m.base = f.ram[f.base];
 		m.word = f.word, m.dStk = f.dStk;
@@ -29,88 +35,79 @@ const OneWordVM = function () {
 		f.printLn(m);
 		exit;
 	}
-	f.cr = function( msg ){		// type message to terminal output buffer
-		f.printLn( f.tob + ( msg || '' ) ), f.tob = '';
-	}
-	f.emit = function( charCode ){// emit a char to terminal output buffer
+	f.emit = function emit( charCode ){// emit a char to terminal output buffer
 		if( charCode == 13 )
-			f.cr();
+			f.printLn();
 		else
-			f.tob += String.fromCharCode( charCode );
+			f.print( String.fromCharCode( charCode ) );
 	}
-	f.type = function( msg ){	// type message to terminal output buffer
-		f.tob += msg;
-		var lineFeed = String.fromCharCode( 10 ), lines = f.tob.split(lineFeed);
-		f.tob = lines.pop();	// the last line is not printed
-		if( lines.length ) f.printLn( lines.join( lineFeed ) );
-	}
-	f.compileOffset = function( n ){// append n to parm list of colon type forth word
+	f.compileOffset = function compileOffset( n ){// append n to parm list of colon type forth word
 		if( f.ram[f.tracing] )
 			f.traceInfo( 'compile ' + f.last.parm.length + ' offset ' + f.dotR( n ) );
 		f.compile( n );
 	}
-	f.compileNumber = function( n ){// compile n to colon parm list
+	f.compileNumber = function compileNumber( n ){// compile n to colon parm list
 		if( f.ram[f.tracing] )
 			f.traceInfo('compile ' + f.last.parm.length + ' doLit ' + f.dotR( n ) );
 		f.compile( f.dict.doLit ), f.compile( n );
 	}
-	f.numberToStack = function( n ){// push n to data stack
+	f.numberToStack = function numberToStack( n ){// push n to data stack
 		if( f.ram[f.tracing] )
 			f.traceInfo( 'push number ' + f.dotR( n ) + ' to data stack', 1 );
 		f.dStk.push(n);
 	}
-	f.executeWord = function( w ){// execute given word w
+	f.executeWord = function executeWord( w ){// execute given word w
 		if( f.ram[f.tracing] ){
 			f.traceInfo( 'execute '+(f.head ? ( ( f.head.ip - 1 ) + ' ' ) : '' ) + ' W'+w.id+' ' + w.name, 1 );
 		}
 		f.word=w, w.code();
 	}
-	f.compileWord = function( w ){// compile a word into colon parm-list
+	f.compileWord = function compileWord( w ){// compile a word into colon parm-list
 		if( f.ram[f.tracing] )
 			f.traceInfo('compile '+f.last.parm.length+' word '+w.name);
 		f.compile( w );
 	}
-	f.doCon = function(){		// constant word handler
+	f.doCon = function doCon(){		// constant word handler
 		f.dStk.push(f.word.parm);
 	}
-	f.doVar = function(){		// variable word handler
+	f.doVar = function doVar(){		// variable word handler
 		f.dStk.push(f.word.parm);
 	}
-	f.doVal = function(){		// value word handler
+	f.doVal = function doVal(){		// value word handler
 		f.dStk.push(f.word.parm);
 	}
-	f.doCol = function(){		// colon word handler
+	f.doCol = function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	f.doRet = function(){		// return from calling colon word
+	f.doRet = function doRet(){		// return from calling colon word
 		f.head = f.rStk.pop(), f.callingLevel--;
 	}
-	f.noop = function(){		// no operation
+	f.noop = function noop(){		// no operation
 	}
-	f.branch = function(){		// branch to relative ip addr in the cell pointed by ip
+	f.branch = function branch(){		// branch to relative ip addr in the cell pointed by ip
 		f.head.ip += f.head.parm[f.head.ip];
 	}
-	f.zBranch = function( n ){		// branch to relative ip addr if TOS is 0 or undefined
+	f.zBranch = function zBranch( n ){		// branch to relative ip addr if TOS is 0 or undefined
 		if( n ) f.head.ip++;
 		else f.head.ip += f.head.parm[f.head.ip];
 	}
-	f.doFor = function( n ){	// push the loop counter for-next to return stack
+	f.doFor = function doFor( n ){	// push the loop counter for-next to return stack
 		f.rStk.push( n );
 	}
-	f.doNext = function(){		// dec counter and loop back to relative ip addr if counter is 0
+	f.doNext = function doNext(){		// dec counter and loop back to relative ip addr if counter is 0
 		var r = f.rStk, t = r.length - 1, counter = -- r[t];
 		if( counter < 0 ) f.head.ip++, r.pop();
 		else f.head.ip += f.head.parm[f.head.ip];
 	}
-	f.compile = function( w ){	// compile a word into colon word-list
+	f.compile = function compile( w ){	// compile a word into colon word-list
 		f.last.parm.push( w );
 	}
 	function adjustName( name ){
 		return name.replace( /[.+*?|{}()\\[\]$^]/g, function(c){ return '\\'+c; } );
 	}
-	f.createWord = function( name, code, tag, value ){ // 
+	f.createWord = function createWord( name, code, tag, value ){ // 
 		var p0 = RegExp( '(\\s*)' +
 			adjustName(f.word.name) + '\\s+' +
 			adjustName(name) + '\\s[^\\0]*$'
@@ -138,13 +135,13 @@ const OneWordVM = function () {
 		if( tag ) w[tag] = value;
 		return w;
 	}
-	f.addWord = function( w ){ // add given forth word into dictionary
+	f.addWord = function addWord( w ){ // add given forth word into dictionary
 		f.dict[w.name] = w;
 		w.src = f.tib.substring(f.last.srcBgn,f.ram[f.toIn]).trim();
 		w.srcEnd = f.last.srcBgn + w.src.length;
 		w.iInp = f.nInp - 1;
 	}
-	f.getToken = function( delimiter ) { // parse next token from tib by given delimiter
+	f.getToken = function getToken( delimiter ) { // parse next token from tib by given delimiter
 		var delimiter = delimiter || ' ';
 		var m, t = f.tib.substr( f.ram[f.toIn] );
 		
@@ -164,7 +161,7 @@ const OneWordVM = function () {
 		f.ram[f.toIn] += m[0].length;
 		return m[1];
 	}
-	f.getTokenx = function( delimiter0, delimiter1 ) { // parse next token from tib between two delimiters
+	f.getTokenx = function getTokenx( delimiter0, delimiter1 ) { // parse next token from tib between two delimiters
 		delimiter0 = delimiter0.replace( /[()]/g, (c)=>('\\'+c) );
 		delimiter1 = delimiter1.replace( /[()]/g, (c)=>('\\'+c) );
 		var t = f.tib.substr( f.ram[f.toIn] );
@@ -174,7 +171,7 @@ const OneWordVM = function () {
 		f.ram[f.toIn] += m[0].length;
 		return m[1].trim();
 	}
-	f.toString = function( number, base ){
+	f.toString = function toString( number, base ){
 		if( isNaN(number) ) {
 			const type = typeof(number);
 			if( type == "string" ) return number;
@@ -186,7 +183,7 @@ const OneWordVM = function () {
 			f.panic( "unable convert " + number + " to string" ); return; }
 		return number.toString( base || f.ram[f.base] );
 	}
-	f.dotR = function( n, width, leadingChr, base ){
+	f.dotR = function dotR( n, width, leadingChr, base ){
 		base = base || f.ram[f.base]; var sign;
 		leadingChr = leadingChr || ' ';
 		width = width || 1;
@@ -203,13 +200,13 @@ const OneWordVM = function () {
 		if( sign ) n = sign + n;
 		return n;
 	}
-	f.d9 = function( n ){
+	f.d9 = function d9( n ){
 		return f.dotR( n, 9, ' ', 10 );
 	}
-	f.d04 = function( n ){
+	f.d04 = function d04( n ){
 		return f.dotR( n, 4, '0', 10 );
 	}
-	f.traceInfo = function( msg, indent ) {
+	f.traceInfo = function traceInfo( msg, indent ) {
 		const D = f.dStk, dt = D.length-1, dT = D[dt], dN = D[dt-1],
 			  R = f.rStk, rt = R.length-1, rT = R[rt], rN = R[rt-1];
 		var t = 'tib:' + f.d04( f.ram[f.toIn] ) +
@@ -218,20 +215,68 @@ const OneWordVM = function () {
 		if( indent ) for(var i=0; i < f.callingLevel; i++) t+='| ';
 		f.printLn( t + msg );
 	}
-	f.isNotADigit = function( asciiCode, base ){
+	f.isNotADigit = function isNotADigit( asciiCode, base ){
 		if( asciiCode < 0x30 ) return true;
 		if( asciiCode >= 0x61 && asciiCode <= 0x7a ) asciiCode ^= 0x20;
 		var i = asciiCode - ( asciiCode <= 0x39 ? 0x30 : ( 0x41 - 10 ) );
 		return i < 0 || i >= base;
 	}
-	f.isNotANumber = function ( n ) {
+	f.isNotANumber = function isNotANumber ( n ) {
 		if( f.ram[f.base] == 10 ) return isNaN( n );
 		if( typeof(n) == "number" ) return false;
 		if( typeof(n) != "string" ) return true;
 		for ( var i=0; i<n.length; i++ ) if( f.isNotADigit( n.charCodeAt( i ), f.ram[f.base] ) ) return true;
 		return false;
 	}
-	f.code = function(){
+	f.analizeArgs = function( args ){
+		var a = args.split( /\s*--\s*/ ); // split input/output 
+		var ai = a[0].split( /\s+/ ); // input args 
+		var ao = a[1] ? a[1].split( /\s+/ ) : a[1]; // output args 
+		var vi = {}; // input var names 
+		var vo = {}; // output var names 
+		var pt = []; // parse value from f.tib 
+		var pd = []; // pop value from f.dStk 
+		var ni; 
+		ai.forEach( function(ni){ 
+			m = ni.match( /^((.*?)<)?([a-zA-Z][a-zA-Z0-9]*)(>(.*?))?$/ ); 
+			if( ! m ) return; 
+			vi[m[3]]=true; 
+			if( m[2] && m[5] ) 
+				pt.push( m[3] + "=f.getTokenx('" + m[2] + "','" + m[5] + "')" ); 
+			else if( m[5] ){ 
+				var m5 = m[5].replace('\\','\\\\'); 
+				pt.push( m[3] + "=f.getToken('" + m5 + "')" ); } 
+			else if( m[4] ) 
+				pt.push( m[3] + "=f.getToken()" ); 
+			else 
+				pd.push( ni + "=f.dStk.pop()" ); 
+		}); 
+		var s; while( s = pd.pop() ) pt.push( s ); 
+		if( ao ){ 
+			ao.forEach( no => { 
+				m = no.match(/^(i:)?([a-zA-Z][a-zA-Z0-9]*)$/); 
+				if( m ) { 
+					if ( ! vi[m[2]] ) 
+						vo[m[2]] = true; 
+				} 
+			} ); 
+		} 
+		Object.keys(vo).forEach( no => pt.push(no) ); 
+		return {pt:pt,ao:ao};
+	}
+	f.getArgs = function( pt ){ // all input args values and output names
+		return "\tvar " + pt.join() + ";\n";
+	}
+	f.setArgs = function( ao ){ // all output args values
+		return "\t" + ao.map( function(no){
+			var s = '', m = no.match(/^(i:)?(.+)$/); // interpretive mode only
+			if( m[1] )
+				s += "if(!f.compiling)";
+			s += "f.dStk.push(" + m[2] + ")";
+			return s;
+		}).join( ";" ) + "\n";
+	}
+	f.code = function code(){
 		var name = f.getToken(), args = f.getTokenx( '(', ')' );
 		if( name=='(')
 			console.log("name=='(' in f.code()");
@@ -281,7 +326,7 @@ const OneWordVM = function () {
 		  // f.printLn('(! args) in code()');
 		
 		var _fun_;
-		var code = "_fun_ = function(){\n";
+		var code = "_fun_ = function _fun_(){\n";
 		if( args ){ // before js
 			if( vt.length )
 				code += "var " + vt.join() + ";\n";
@@ -316,7 +361,7 @@ const OneWordVM = function () {
 		"code": w
 	};
 	f.inps = [], f.nInp = 0;
-	f.toData = function( token ) {
+	f.toData = function toData( token ) {
 		var data, n;
 		if( f.isNotANumber( token ) ) {
 			if( ! isNaN( token ) )
@@ -335,10 +380,10 @@ const OneWordVM = function () {
 			n = parseFloat( token );
 		return n
 	}
-	f.eval = function(tib) { // evaluate given script in tib
+	f.eval = function eval(tib) { // evaluate given script in tib
 		tib = tib || f.defaultScript;
 		f.inps.push(tib);
-		f.cr("inp "+(f.nInp++)+" > `"+tib+"`");
+		f.printLn("inp "+(f.nInp++)+" > `"+tib+"`");
 		f.tib = tib || "", f.ram[f.toIn] = 0, f.rStk=[], f.compiling = f.errorMessage = false;
 		var token;
 		while( f.token = token = f.getToken() ){
