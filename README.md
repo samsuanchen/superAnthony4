@@ -23,7 +23,7 @@
 
 ## D) oneWordVM1.js
 
-   oneWordVM1.js 中 f = new  oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
+   oneWordVM1.js 中 f = new oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
    的 TOP FORTH 核心引擎。 這僅有的指令叫作 "code", 有了這指令 就可 定義出許多新指令 (Forth Word) 分別去執行 任何形式的 js code。
 
 ## E) f.eval(script)
@@ -74,10 +74,125 @@
    註2: 若 執行一個 Forth Word, 例如 space, 就能達到 執行幾個 Forth Word, 例如 bl emit,
    的相同效果, 應考慮多定義這類的 Forth Word, 以大幅增進 執行效率。
 
-   註3: 針對 場域應用 系統設計, 太過低階又用不到的 Forth Word 或可不必定義。
+   註3: 太過低階又用不到的 Forth Word 或許就可不必定義了。
    
+## G) 核心引擎 f 的 功能機制
+
+### 1. tools:
+
+  f.eval( script )
+  
+  f.getToken( delimiter )
+  
+  f.executeWord( w )
+  
+  
+  
+  f.code()
+  
+  f.createWord( name, code, parm )
+  
+  f.addWord( w )
+  
+  
    
-## G) Forth Word 範例
+  f.getTokenx( delimiter0, delimiter1 )
+  
+  f.analizeArgs( args )
+  
+  f.getArgs( a )
+  
+  f.setArgs( a )
+  
+  
+  
+  f.compile( obj )
+  
+  f.compileNumber( n )
+  
+  f.compileOffset( n )
+  
+  f.compileWord( obj )
+  
+  
+  
+  f.panic( msg )
+  
+  f.dotR( n, width, leadingChar )
+  
+  f.emit( asciiCode )
+  
+  f.toString( obj )
+  
+  f.printLn( msg ) 
+  
+  f.print( msg )
+  
+### 2. system variables:
+
+  f.base // between 2 .. 36 as integer conversion base
+  
+  f.callingLevel // high level (colon type word) calling depth
+  
+  f.compiling // interpreting/compiling state
+  
+  f.head // calling word, head.parm and head.ip used in colon type word calling
+  
+  f.iInp // index of input script
+  
+  f.last // word created
+  
+  f.tib // input buffer
+  
+  f.tob // output buffer
+  
+  f.toIn // input buffer entry
+  
+  f.token // token parsed from input buffer
+  
+  f.tracing // tracing level
+  
+  f.word // word executed
+  
+### 3. primitives:
+
+  f.doCon() // constant type word handler, return value
+  
+  f.doVal() // value type word handler, return value
+  
+  f.doVar() // variable type word handler, return address
+  
+  
+  
+  f.doCol() // colon type word handler, call word list
+  
+  f.doRet() // exit from word list
+  
+  
+  
+  f.branch() // unconditional branching handler (forward or backward)
+  
+  f.zBranch() // conditional branching handler (forward or backward)
+  
+  
+  
+  f.doFor() // setup for-next loop
+  
+  f.doNext() // decrease loop counter and conditional branch backward
+
+### 4. resource:
+
+  f.dStk // list as data stack
+  
+  f.dict // objec as dictionayt
+  
+  f.inps // list as input script
+  
+  f.rStk // list as return stack
+  
+  f.ram // list as variable space
+
+## H) Forth Word 範例
 		
 	code quote ( -- 34 ) // 雙引號 字元的 ASCII 碼 34 (存到 資料堆疊 f.dStk)。
 		f.dStk.push(34); end-code
@@ -145,7 +260,7 @@
 	code false ( -- false ) // 將 false 放上 資料堆疊。
 		f.dStk.push(false); end-code
 
-G) 堆疊操作
+I) 堆疊操作
 
    dup、swap、drop … 這些 堆疊操作指令 不是 forth 吸引人的特點, 我們不該太過強調他們。就算沒有這些 堆疊操作指令 應該也沒關係吧。
    不過, 我們還是可以 將這些 Forth 標準指令 當作範例 加入系統, 如下。
@@ -200,7 +315,7 @@ G) 堆疊操作
 		var s=f.dStk, n=s.length, a=s[n-4], b=s[n-3];
 		s.push(a), s.push(b); end-code
 		
-H) f.dict 字典 與其中的 Forth Word
+J) f.dict 字典 與其中的 Forth Word
 
    f.dict 是一個字典, 每個 Forth Word 的 名稱 就是搜尋字典的 key。
    若 Forth Word 的 名稱 是 "x", 則 f.dict["x"] 就是 所找到 的 Forth Word, f.word。
@@ -209,7 +324,7 @@ H) f.dict 字典 與其中的 Forth Word
    以 w=f.dict["x"] 為例, w.name 就是 "x", w.code 就是 所要執行的 js code。
    w.id 則是 序號 (定義這 Forth Word 時的 流水號)。
 
-I) constant
+K) constant
 
    常常要取用的不變資料 可用 constant 來定義, 例如 f.eval("16 constant led"),
    定義 led 就是 16, 執行 led 這 Forth Word 就是 執行 f.doCon,
@@ -226,7 +341,7 @@ I) constant
 		f.addWord( w );
 	end-code 
 
-J) value
+L) value
 
    會改變的資料 可用 value 來定義, 例如 f.eval("0 value level"), 
    定義 level 的起始值為 0, 執行 level 這 Forth Word 就是 執行 f.doVal,
