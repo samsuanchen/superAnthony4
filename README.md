@@ -80,117 +80,113 @@
 
 ### 1. tools:
 
-  f.eval( script )
+	f.eval( script )
+
+	f.getToken( delimiter )
+
+	f.executeWord( w )
   
-  f.getToken( delimiter )
-  
-  f.executeWord( w )
   
   
-  
-  f.code()
-  
-  f.createWord( name, code, parm )
-  
-  f.addWord( w )
+	f.code()
+
+	f.createWord( name, code, parm )
+
+	f.addWord( w )
   
   
    
-  f.getTokenx( delimiter0, delimiter1 )
-  
-  f.analizeArgs( args )
-  
-  f.getArgs( a )
-  
-  f.setArgs( a )
-  
-  
-  
-  f.compile( obj )
-  
-  f.compileNumber( n )
-  
-  f.compileOffset( n )
-  
-  f.compileWord( obj )
-  
-  
-  
-  f.panic( msg )
-  
-  f.dotR( n, width, leadingChar )
-  
-  f.emit( asciiCode )
-  
-  f.toString( obj )
-  
-  f.printLn( msg ) 
-  
-  f.print( msg )
-  
-### 2. system variables:
+	f.getTokenx( delimiter0, delimiter1 )
 
-  f.base // between 2 .. 36 as integer conversion base
+	f.analizeArgs( args )
+
+	f.getArgs( a )
+
+	f.setArgs( a )
   
-  f.callingLevel // high level (colon type word) calling depth
   
-  f.compiling // interpreting/compiling state
   
-  f.head // calling word, head.parm and head.ip used in colon type word calling
+	f.compile( obj )
+
+	f.compileNumber( n )
+
+	f.compileOffset( n )
+
+	f.compileWord( obj )
   
-  f.iInp // index of input script
   
-  f.last // word created
   
-  f.tib // input buffer
+	f.panic( msg )
+
+	f.dotR( n, width, leadingChar )
+
+	f.emit( asciiCode )
+
+	f.toString( obj )
+
+	f.printLn( msg ) 
+
+	f.print( msg )
   
-  f.tob // output buffer
+### 2. system variables:depth
   
-  f.toIn // input buffer entry
-  
-  f.token // token parsed from input buffer
-  
-  f.tracing // tracing level
-  
-  f.word // word executed
+	f.compiling // interpreting/compiling state
+
+	f.head // calling word, head.parm and head.ip used in colon type word calling
+
+	f.iInp // index of input script
+
+	f.last // word created
+
+	f.tib // input buffer
+
+	f.tob // output buffer
+
+	f.toIn // input buffer entry
+
+	f.token // token parsed from input buffer
+
+	f.tracing // tracing level
+
+	f.word // word executed
   
 ### 3. primitives:
 
-  f.doCon() // constant type word handler, return value
-  
-  f.doVal() // value type word handler, return value
-  
-  f.doVar() // variable type word handler, return address
-  
-  
-  
-  f.doCol() // colon type word handler, call word list
-  
-  f.doRet() // exit from word list
+	f.doCon() // constant type word handler, return value
+
+	f.doVal() // value type word handler, return value
+
+	f.doVar() // variable type word handler, return address
   
   
   
-  f.branch() // unconditional branching handler (forward or backward)
+	f.doCol() // colon type word handler, call word list
+
+	f.doRet() // exit from word list
   
-  f.zBranch() // conditional branching handler (forward or backward)
+  
+  
+	f.branch() // unconditional branching handler (forward or backward)
+
+	f.zBranch() // conditional branching handler (forward or backward)
   
   
   
-  f.doFor() // setup for-next loop
-  
-  f.doNext() // decrease loop counter and conditional branch backward
+	f.doFor() // setup for-next loop
+
+	f.doNext() // decrease loop counter and conditional branch backward
 
 ### 4. resource:
 
-  f.dStk // list as data stack
-  
-  f.dict // objec as dictionayt
-  
-  f.inps // list as input script
-  
-  f.rStk // list as return stack
-  
-  f.ram // list as variable space
+	f.dStk // list as data stack
+
+	f.dict // objec as dictionayt
+
+	f.inps // list as input script
+
+	f.rStk // list as return stack
+
+	f.ram // list as variable space
 
 ## H) Forth Word 範例
 		
