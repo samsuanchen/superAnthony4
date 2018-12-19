@@ -180,9 +180,9 @@
 
 	f.dStk // list as data stack
 
-	f.dict // objec as dictionayt
+	f.dict // objec as dictionay
 
-	f.inps // list as input script
+	f.inps // list as input scripts
 
 	f.rStk // list as return stack
 

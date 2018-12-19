@@ -195,29 +195,31 @@ f.defaultScript = `
  
  code (seeWord) ( w -- )
 	f.dStk.push( w ),f.dict['(see)'].code();
-	console.log('\tw=f.dict["'+w.name+'"];');
-	console.log('\tw.id='+w.id);
-	console.log('\tw.name="'+w.name+'"');
-	if(w.immediate)console.log('\tw.immediate='+w.immediate);
-	if(w.compileOnly)console.log('\tw.compileOnly='+w.compileOnly);
-	console.log('\tw.definedBy="'+w.definedBy+'"');
-	console.log('\tw.iInp='+w.iInp);
-	console.log('\tw.srcBgn='+w.srcBgn);
-	console.log('\tw.srcEnd='+w.srcEnd);
-	console.log('\tw.code='+w.code);
+	f.printLn('f.dict["'+w.name+'"]: ');
+	f.printLn('\\t{id:'+w.id);
+	f.printLn('\\t,name:"'+w.name+'"');
+	if(w.immediate)f.printLn('\\t,immediate:'+w.immediate);
+	if(w.compileOnly)f.printLn('\\t,compileOnly:'+w.compileOnly);
+	f.printLn('\\t,definedBy:"'+w.definedBy+'"');
+	f.printLn('\\t,iInp:'+w.iInp);
+	f.printLn('\\t,srcBgn:'+w.srcBgn);
+	f.printLn('\\t,srcEnd:'+w.srcEnd);
+	f.printLn('\\t,code:'+w.code);
 	if( w.parm ){
 		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
-			console.log( '\tw.parm=' );
-			w.parm.forEach(( w, i ) => {
+			f.printLn( '\\t,parm:' );
+			f.printLn( '\\t\\t{'+w.parm.map(( w, i ) => {
 				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
-				console.log( '	' + i + ' ' + t ); 
-			});
+				return i + ':' + t; 
+			}).join( '\\n\\t\\t,' ) );
+			f.printLn('\\t\\t,length:'+w.parm.length+'\\n\\t\\t}');
 		} else {
-			console.log( '\tw.parm=' + JSON.stringify( w.parm ) );
-			if( w.definedBy == 'variable' )
-				console.log( '\tf.ram[' + w.parm + ']=' + JSON.stringify( f.ram[w.parm] ) );
+			f.printLn( '\\t,parm:' + JSON.stringify( w.parm ) );
 		}
 	}
+	f.printLn('}');
+	if( w.definedBy == 'variable' )
+		f.printLn( 'f.ram[' + w.parm + ']:' + JSON.stringify( f.ram[w.parm] ) );
 	end-code
  code seeAllWords ( -- )
 	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
