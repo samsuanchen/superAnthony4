@@ -1,22 +1,21 @@
-javascript oneWordVm 20181212 samsuanchen@gmail.com
+javascript oneWordVm 20181219 samsuanchen@gmail.com
 inp 0 > `
  code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
 	if( js==undefined ) 
 		f.panic( 'end-code not given' ); 
 	var w = f.createWord( name ); 
-    var code = "", a; 
+	var a, code = "_ = function(){\n"; 
 	if( args ){ 
-		code += "// ( " + args + " )\n";
+		code += "\t\t// ( " + args + " )\n";
 		a = f.analizeArgs( args );
 	} 
-	var code = "_fun_ = function(){\n"; 
 	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
-	if( js.length ) code += "\t" + js + "\n";
+	if( js.length ) code += ('\t'+js).split(/\r?\n/).map(l=>'\t'+l).filter(l=>l.trim().length).join('\n') + "\n";
 	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
 	code += "\t}"; 
 	try { 
-		var _fun_; eval( code );
-		w.code = _fun_, f.addWord( w ); 
+		var _; eval( code );
+		w.code = _, f.addWord( w ); 
 	} catch ( err ) { 
 		f.printLn( 'eval("' + code + '")' ); 
 		f.panic( err ) 
@@ -110,8 +109,7 @@ inp 0 > `
 	if( definedBy == 'alias' ){ 
 		var L = Object.keys( f.dict ).sort( function( a, b ){ 
 			return f.dict[a].id - f.dict[b].id; 
-	}).slice( 0, w.id ); 
-	for( var i = L.length - 1; i
+	}).slice( 0
 reDef W0 code
 def W1 constant
 def W2 variable
@@ -176,9 +174,12 @@ def W60 literal
 def W61 execute
 def W62 find
 def W63 '
+'m[2]' in f.getTokenx()
 def W64 words
 def W65 (see)
+'m[2]' in f.getTokenx()
 def W66 seeAll
+'m[2]' in f.getTokenx()
 def W67 alias
 def W68 >
 def W69 <
@@ -208,6 +209,7 @@ def W92 (to)
 def W93 (+to)
 def W94 compiling
 def W95 ."
+'m[2]' in f.getTokenx()
 def W96 $"
 def W97 see
 def W98 ?
@@ -238,7 +240,9 @@ def W122 [compile]
 def W123 to
 def W124 +to
 def W125 .s
+'m[2]' in f.getTokenx()
 def W126 (seeWord)
+'m[2]' in f.getTokenx()
 def W127 seeAllWords
 def W128 seeWord
 enter "words" should print the following: 
@@ -257,643 +261,664 @@ enter "t99" should print the following:
   7 14 21 28 35 42 49 56 63
   8 16 24 32 40 48 56 64 72
   9 18 27 36 45 54 63 72 81
-inp 1 > `seeWord see`
-W97 : see ( <name> -- ) ' (see) ;
-f.dict["see"]: 
-{	 id : 97
-	,name : "see"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7129
-	,srcEnd : 7158
-	,code : function doCol(){		// colon word handler
-		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
-		while( f.head )
-			f.executeWord( f.head.parm[f.head.ip++] );
-	}
-	,parm:
-		{0 : W63 '
-		,1 : W65 (see)
-		,2 : W10 doRet
-		,length : 3
-		}
-}
-inp 2 > `seeAllWords`
+inp 1 > `seeAllWords`
 W0 code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
-		if( js==undefined ) 
+	if( js==undefined ) 
 		f.panic( 'end-code not given' ); 
-		var w = f.createWord( name ); 
-		var code = "", a; 
-		if( args ){ 
-			code += "// ( " + args + " )\n";
-			a = f.analizeArgs( args );
-		} 
-		var code = "_fun_ = function(){\n"; 
-		if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
-		if( js.length ) code += "\t" + js + "\n";
-		if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
-		code += "\t}"; 
-		try { 
-			var _fun_; eval( code );
-			w.code = _fun_, f.addWord( w ); 
-		} catch ( err ) { 
-			f.printLn( 'eval("' + code + '")' ); 
-			f.panic( err ) 
-		} 
+	var w = f.createWord( name ); 
+	var a, code = "_ = function(){\n"; 
+	if( args ){ 
+		code += "\t\t// ( " + args + " )\n";
+		a = f.analizeArgs( args );
+	} 
+	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
+	if( js.length ) code += ('\t'+js).split(/\r?\n/).map(l=>'\t'+l).filter(l=>l.trim().length).join('\n') + "\n";
+	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
+	code += "\t}"; 
+	try { 
+		var _; eval( code );
+		w.code = _, f.addWord( w ); 
+	} catch ( err ) { 
+		f.printLn( 'eval("' + code + '")' ); 
+		f.panic( err ) 
+	} 
 	end-code
-f.dict["code"]: 
-{	 id : 0
-	,name : "code"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2
-	,srcEnd : 720
-	,code : function _fun_(){
+f.dict["code"] : 
+{	  id : 0
+	, name : "code"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2
+	, srcEnd : 760
+	, code : function(){
+		// ( <name> (<args>) <js>end-code -- )
 		var name=f.getToken(),args=f.getTokenx('(',')'),js=f.getToken('end-code');
-		// note!! in string doubleBackSlashs means one backSlash
+			// note!! in string doubleBackSlashs means one backSlash
 		if( js==undefined ) 
 			f.panic( 'end-code not given' ); 
 		var w = f.createWord( name ); 
-		var code = "", a; 
+		var a, code = "_ = function(){\n"; 
 		if( args ){ 
-			code += "// ( " + args + " )\n";
+			code += "\t\t// ( " + args + " )\n";
 			a = f.analizeArgs( args );
 		} 
-		var code = "_fun_ = function(){\n"; 
 		if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
-		if( js.length ) code += "\t" + js + "\n";
+		if( js.length ) code += ('\t'+js).split(/\r?\n/).map(l=>'\t'+l).filter(l=>l.trim().length).join('\n') + "\n";
 		if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
 		code += "\t}"; 
 		try { 
-			var _fun_; eval( code );
-			w.code = _fun_, f.addWord( w ); 
+			var _; eval( code );
+			w.code = _, f.addWord( w ); 
 		} catch ( err ) { 
 			f.printLn( 'eval("' + code + '")' ); 
 			f.panic( err ) 
-		}
+		} 
 	}
 }
 W1 code constant ( n <name> -- ) f.addWord( f.createWord( name, f.doCon, "parm", n ) ); end-code
-f.dict["constant"]: 
-{	 id : 1
-	,name : "constant"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 722
-	,srcEnd : 815
-	,code : function(){
+f.dict["constant"] : 
+{	  id : 1
+	, name : "constant"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 762
+	, srcEnd : 855
+	, code : function(){
+		// ( n <name> -- )
 		var name=f.getToken(),n=f.dStk.pop();
 		f.addWord( f.createWord( name, f.doCon, "parm", n ) ); 
 	}
 }
 W2 code variable ( <name> -- ) f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) );
 	f.ram.push( 0 ); end-code
-f.dict["variable"]: 
-{	 id : 2
-	,name : "variable"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 818
-	,srcEnd : 938
-	,code : function(){
-	var name=f.getToken();
+f.dict["variable"] : 
+{	  id : 2
+	, name : "variable"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 858
+	, srcEnd : 978
+	, code : function(){
+		// ( <name> -- )
+		var name=f.getToken();
 		f.addWord( f.createWord( name, f.doVar, "parm", f.ram.length ) );
 		f.ram.push( 0 ); 
 	}
 }
 W3 code value ( n <name> -- ) f.addWord( f.createWord( name, f.doVal, "parm", n ) ); end-code
-f.dict["value"]: 
-{	 id : 3
-	,name : "value"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 941
-	,srcEnd : 1031
-	,code : function(){
+f.dict["value"] : 
+{	  id : 3
+	, name : "value"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 981
+	, srcEnd : 1071
+	, code : function(){
+		// ( n <name> -- )
 		var name=f.getToken(),n=f.dStk.pop();
 		f.addWord( f.createWord( name, f.doVal, "parm", n ) ); 
 	}
 }
 W4 code immediate ( -- ) f.last.immediate = true; end-code
-f.dict["immediate"]: 
-{	 id : 4
-	,name : "immediate"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1034
-	,srcEnd : 1089
-	,code : function(){
+f.dict["immediate"] : 
+{	  id : 4
+	, name : "immediate"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1074
+	, srcEnd : 1129
+	, code : function(){
+		// ( -- )
 		f.last.immediate = true; 
 	}
 }
 W5 code compile-only ( -- ) f.last.compileOnly = true; end-code
-f.dict["compile-only"]: 
-{	 id : 5
-	,name : "compile-only"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1092
-	,srcEnd : 1152
-	,code : function(){
+f.dict["compile-only"] : 
+{	  id : 5
+	, name : "compile-only"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1132
+	, srcEnd : 1192
+	, code : function(){
+		// ( -- )
 		f.last.compileOnly = true; 
 	}
 }
 W6 code : ( <name> -- ) f.createWord( name, f.doCol, "parm", [] ), f.compiling = true; end-code
-f.dict[":"]: 
-{	 id : 6
-	,name : ":"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1155
-	,srcEnd : 1247
-	,code : function(){
-	var name=f.getToken();
+: 
+{	  id : 6
+	, name : ":"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1195
+	, srcEnd : 1287
+	, code : function(){
+		// ( <name> -- )
+		var name=f.getToken();
 		f.createWord( name, f.doCol, "parm", [] ), f.compiling = true; 
 	}
 }
 W7 code ; ( -- ) f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;
 	end-code immediate compile-only
-f.dict[";"]: 
-{	 id : 7
-	,name : ";"
-	,immediate : true
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1250
-	,srcEnd : 1346
-	,code : function(){
-		f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;	
+f.dict[";"] : 
+{	  id : 7
+	, name : ";"
+	, immediate : true
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1290
+	, srcEnd : 1386
+	, code : function(){
+		// ( -- )
+		f.compileWord( f.dict.doRet ), f.addWord( f.last ), f.compiling = false;
 	}
 }
 W8 code doLit ( -- n ) n=f.head.parm[f.head.ip++]; end-code compile-only
-f.dict["doLit"]: 
-{	 id : 8
-	,name : "doLit"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1372
-	,srcEnd : 1428
-	,code : function(){
+f.dict["doLit"] : 
+{	  id : 8
+	, name : "doLit"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1412
+	, srcEnd : 1468
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.head.parm[f.head.ip++]; 
 		f.dStk.push(n)
 	}
 }
 W9 code doStr ( -- str ) str=f.head.parm[f.head.ip++]; end-code compile-only
-f.dict["doStr"]: 
-{	 id : 9
-	,name : "doStr"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1444
-	,srcEnd : 1504
-	,code : function(){
+f.dict["doStr"] : 
+{	  id : 9
+	, name : "doStr"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1484
+	, srcEnd : 1544
+	, code : function(){
+		// ( -- str )
 		var str;
 		str=f.head.parm[f.head.ip++]; 
 		f.dStk.push(str)
 	}
 }
 W10 code doRet ( -- ) f.doRet(); end-code compile-only
-f.dict["doRet"]: 
-{	 id : 10
-	,name : "doRet"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1520
-	,srcEnd : 1557
-	,code : function(){
+f.dict["doRet"] : 
+{	  id : 10
+	, name : "doRet"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1560
+	, srcEnd : 1597
+	, code : function(){
+		// ( -- )
 		f.doRet(); 
 	}
 }
 W11 code exit ( -- ) f.doRet(); end-code compile-only
-f.dict["exit"]: 
-{	 id : 11
-	,name : "exit"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1573
-	,srcEnd : 1609
-	,code : function(){
+f.dict["exit"] : 
+{	  id : 11
+	, name : "exit"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1613
+	, srcEnd : 1649
+	, code : function(){
+		// ( -- )
 		f.doRet(); 
 	}
 }
 W12 code ?exit ( flag -- ) if( flag ) f.doRet(); end-code compile-only
-f.dict["?exit"]: 
-{	 id : 12
-	,name : "?exit"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1625
-	,srcEnd : 1678
-	,code : function(){
+f.dict["?exit"] : 
+{	  id : 12
+	, name : "?exit"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1665
+	, srcEnd : 1718
+	, code : function(){
+		// ( flag -- )
 		var flag=f.dStk.pop();
 		if( flag ) f.doRet(); 
 	}
 }
 W13 code doFor ( n -- ) f.doFor( n ); end-code compile-only
-f.dict["doFor"]: 
-{	 id : 13
-	,name : "doFor"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1694
-	,srcEnd : 1736
-	,code : function(){
+f.dict["doFor"] : 
+{	  id : 13
+	, name : "doFor"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1734
+	, srcEnd : 1776
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.doFor( n ); 
 	}
 }
 W14 code doNext ( -- ) f.doNext(); end-code compile-only
-f.dict["doNext"]: 
-{	 id : 14
-	,name : "doNext"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1752
-	,srcEnd : 1791
-	,code : function(){
+f.dict["doNext"] : 
+{	  id : 14
+	, name : "doNext"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1792
+	, srcEnd : 1831
+	, code : function(){
+		// ( -- )
 		f.doNext(); 
 	}
 }
 W15 code doIf ( n -- ) f.zBranch( n ); end-code compile-only
-f.dict["doIf"]: 
-{	 id : 15
-	,name : "doIf"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1807
-	,srcEnd : 1850
-	,code : function(){
+f.dict["doIf"] : 
+{	  id : 15
+	, name : "doIf"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1847
+	, srcEnd : 1890
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.zBranch( n ); 
 	}
 }
 W16 code doElse ( -- ) f.branch(); end-code compile-only
-f.dict["doElse"]: 
-{	 id : 16
-	,name : "doElse"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1866
-	,srcEnd : 1905
-	,code : function(){
+f.dict["doElse"] : 
+{	  id : 16
+	, name : "doElse"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1906
+	, srcEnd : 1945
+	, code : function(){
+		// ( -- )
 		f.branch(); 
 	}
 }
 W17 code doThen ( -- ) end-code compile-only
-f.dict["doThen"]: 
-{	 id : 17
-	,name : "doThen"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1921
-	,srcEnd : 1948
-	,code : function(){
+f.dict["doThen"] : 
+{	  id : 17
+	, name : "doThen"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 1961
+	, srcEnd : 1988
+	, code : function(){
+		// ( -- )
 	}
 }
 W18 code doBegin ( -- ) end-code compile-only
-f.dict["doBegin"]: 
-{	 id : 18
-	,name : "doBegin"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 1964
-	,srcEnd : 1992
-	,code : function(){
+f.dict["doBegin"] : 
+{	  id : 18
+	, name : "doBegin"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2004
+	, srcEnd : 2032
+	, code : function(){
+		// ( -- )
 	}
 }
 W19 code doAgain ( -- ) f.branch(); end-code compile-only
-f.dict["doAgain"]: 
-{	 id : 19
-	,name : "doAgain"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2008
-	,srcEnd : 2048
-	,code : function(){
+f.dict["doAgain"] : 
+{	  id : 19
+	, name : "doAgain"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2048
+	, srcEnd : 2088
+	, code : function(){
+		// ( -- )
 		f.branch(); 
 	}
 }
 W20 code doUntil ( n -- ) f.zBranch( n ); end-code compile-only
-f.dict["doUntil"]: 
-{	 id : 20
-	,name : "doUntil"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2064
-	,srcEnd : 2110
-	,code : function(){
+f.dict["doUntil"] : 
+{	  id : 20
+	, name : "doUntil"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2104
+	, srcEnd : 2150
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.zBranch( n ); 
 	}
 }
 W21 code doWhile ( n -- ) f.zBranch( n ); end-code compile-only
-f.dict["doWhile"]: 
-{	 id : 21
-	,name : "doWhile"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2126
-	,srcEnd : 2172
-	,code : function(){
+f.dict["doWhile"] : 
+{	  id : 21
+	, name : "doWhile"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2166
+	, srcEnd : 2212
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.zBranch( n ); 
 	}
 }
 W22 code doRepeat ( -- ) f.branch(); end-code compile-only
-f.dict["doRepeat"]: 
-{	 id : 22
-	,name : "doRepeat"
-	,compileOnly : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2188
-	,srcEnd : 2229
-	,code : function(){
+f.dict["doRepeat"] : 
+{	  id : 22
+	, name : "doRepeat"
+	, compileOnly : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2228
+	, srcEnd : 2269
+	, code : function(){
+		// ( -- )
 		f.branch(); 
 	}
 }
 W23 code ( ( <str>) -- ) end-code immediate
-f.dict["("]: 
-{	 id : 23
-	,name : "("
-	,immediate : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2245
-	,srcEnd : 2274
-	,code : function(){
+f.dict["("] : 
+{	  id : 23
+	, name : "("
+	, immediate : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2285
+	, srcEnd : 2314
+	, code : function(){
+		// ( <str>) -- )
 		var str=f.getToken(')');
 	}
 }
 W24 code \ ( <str>\n -- ) end-code immediate
-f.dict["\"]: 
-{	 id : 24
-	,name : "\"
-	,immediate : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2287
-	,srcEnd : 2317
-	,code : function(){
+f.dict["\"] : 
+{	  id : 24
+	, name : "\"
+	, immediate : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2327
+	, srcEnd : 2357
+	, code : function(){
+		// ( <str>\n -- )
 		var str=f.getToken('\\n');
 	}
 }
 W25 code cr ( -- ) f.printLn(); end-code
-f.dict["cr"]: 
-{	 id : 25
-	,name : "cr"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2363
-	,srcEnd : 2399
-	,code : function(){
+f.dict["cr"] : 
+{	  id : 25
+	, name : "cr"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2403
+	, srcEnd : 2439
+	, code : function(){
+		// ( -- )
 		f.printLn(); 
 	}
 }
 W26 code space ( -- ) f.emit( 0x20 ); end-code
-f.dict["space"]: 
-{	 id : 26
-	,name : "space"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2402
-	,srcEnd : 2444
-	,code : function(){
+f.dict["space"] : 
+{	  id : 26
+	, name : "space"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2442
+	, srcEnd : 2484
+	, code : function(){
+		// ( -- )
 		f.emit( 0x20 ); 
 	}
 }
 W27 code spaces ( n -- ) for( var i=0; i<n; i++ ) f.emit( 0x20 ); end-code
-f.dict["spaces"]: 
-{	 id : 27
-	,name : "spaces"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2447
-	,srcEnd : 2517
-	,code : function(){
+f.dict["spaces"] : 
+{	  id : 27
+	, name : "spaces"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2487
+	, srcEnd : 2557
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		for( var i=0; i<n; i++ ) f.emit( 0x20 ); 
 	}
 }
 W28 code emit ( charCode -- ) f.emit( charCode ); end-code
-f.dict["emit"]: 
-{	 id : 28
-	,name : "emit"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2520
-	,srcEnd : 2574
-	,code : function(){
+f.dict["emit"] : 
+{	  id : 28
+	, name : "emit"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2560
+	, srcEnd : 2614
+	, code : function(){
+		// ( charCode -- )
 		var charCode=f.dStk.pop();
 		f.emit( charCode ); 
 	}
 }
 W29 code type ( obj -- ) f.print( obj ); end-code
-f.dict["type"]: 
-{	 id : 29
-	,name : "type"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2577
-	,srcEnd : 2622
-	,code : function(){
+f.dict["type"] : 
+{	  id : 29
+	, name : "type"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2617
+	, srcEnd : 2662
+	, code : function(){
+		// ( obj -- )
 		var obj=f.dStk.pop();
 		f.print( obj ); 
 	}
 }
 W30 code .( ( <str>) -- ) f.print( str ); end-code
-f.dict[".("]: 
-{	 id : 30
-	,name : ".("
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2625
-	,srcEnd : 2671
-	,code : function(){
+f.dict[".("] : 
+{	  id : 30
+	, name : ".("
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2665
+	, srcEnd : 2711
+	, code : function(){
+		// ( <str>) -- )
 		var str=f.getToken(')');
 		f.print( str ); 
 	}
 }
 W31 code . ( n -- ) f.print( f.toString( n ) + " " ); end-code
-f.dict["."]: 
-{	 id : 31
-	,name : "."
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2674
-	,srcEnd : 2732
-	,code : function(){
+f.dict["."] : 
+{	  id : 31
+	, name : "."
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2714
+	, srcEnd : 2772
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.print( f.toString( n ) + " " ); 
 	}
 }
 W32 code .r ( n width -- ) f.print( f.dotR( n, width, " " ) ); end-code
-f.dict[".r"]: 
-{	 id : 32
-	,name : ".r"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2735
-	,srcEnd : 2802
-	,code : function(){
+f.dict[".r"] : 
+{	  id : 32
+	, name : ".r"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2775
+	, srcEnd : 2842
+	, code : function(){
+		// ( n width -- )
 		var width=f.dStk.pop(),n=f.dStk.pop();
 		f.print( f.dotR( n, width, " " ) ); 
 	}
 }
 W33 code .0r ( n width -- ) f.print( f.dotR( n, width, "0" ) ); end-code
-f.dict[".0r"]: 
-{	 id : 33
-	,name : ".0r"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2805
-	,srcEnd : 2873
-	,code : function(){
+f.dict[".0r"] : 
+{	  id : 33
+	, name : ".0r"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2845
+	, srcEnd : 2913
+	, code : function(){
+		// ( n width -- )
 		var width=f.dStk.pop(),n=f.dStk.pop();
 		f.print( f.dotR( n, width, "0" ) ); 
 	}
 }
 W34 code + ( a b -- a+b ) end-code
-f.dict["+"]: 
-{	 id : 34
-	,name : "+"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2876
-	,srcEnd : 2906
-	,code : function(){
+f.dict["+"] : 
+{	  id : 34
+	, name : "+"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2916
+	, srcEnd : 2946
+	, code : function(){
+		// ( a b -- a+b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a+b)
 	}
 }
 W35 code - ( a b -- a-b ) end-code
-f.dict["-"]: 
-{	 id : 35
-	,name : "-"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2909
-	,srcEnd : 2939
-	,code : function(){
+f.dict["-"] : 
+{	  id : 35
+	, name : "-"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2949
+	, srcEnd : 2979
+	, code : function(){
+		// ( a b -- a-b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a-b)
 	}
 }
 W36 code * ( a b -- a*b ) end-code
-f.dict["*"]: 
-{	 id : 36
-	,name : "*"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2942
-	,srcEnd : 2972
-	,code : function(){
+f.dict["*"] : 
+{	  id : 36
+	, name : "*"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 2982
+	, srcEnd : 3012
+	, code : function(){
+		// ( a b -- a*b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a*b)
 	}
 }
 W37 code / ( a b -- a/b ) end-code
-f.dict["/"]: 
-{	 id : 37
-	,name : "/"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 2975
-	,srcEnd : 3005
-	,code : function(){
+f.dict["/"] : 
+{	  id : 37
+	, name : "/"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3015
+	, srcEnd : 3045
+	, code : function(){
+		// ( a b -- a/b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a/b)
 	}
 }
 W38 code mod ( a b -- a%b ) end-code
-f.dict["mod"]: 
-{	 id : 38
-	,name : "mod"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3008
-	,srcEnd : 3040
-	,code : function(){
+f.dict["mod"] : 
+{	  id : 38
+	, name : "mod"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3048
+	, srcEnd : 3080
+	, code : function(){
+		// ( a b -- a%b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a%b)
 	}
 }
 W39 code ** ( a b -- a**b ) end-code
-f.dict["**"]: 
-{	 id : 39
-	,name : "**"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3043
-	,srcEnd : 3075
-	,code : function(){
+f.dict["**"] : 
+{	  id : 39
+	, name : "**"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3083
+	, srcEnd : 3115
+	, code : function(){
+		// ( a b -- a**b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a**b)
 	}
 }
 W40 code drop ( n -- ) end-code
-f.dict["drop"]: 
-{	 id : 40
-	,name : "drop"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3078
-	,srcEnd : 3105
-	,code : function(){
+f.dict["drop"] : 
+{	  id : 40
+	, name : "drop"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3118
+	, srcEnd : 3145
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 	}
 }
 W41 code nip ( a b -- b ) end-code
-f.dict["nip"]: 
-{	 id : 41
-	,name : "nip"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3108
-	,srcEnd : 3138
-	,code : function(){
+f.dict["nip"] : 
+{	  id : 41
+	, name : "nip"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3148
+	, srcEnd : 3178
+	, code : function(){
+		// ( a b -- b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(b)
 	}
 }
 W42 code dup ( n -- n n ) end-code
-f.dict["dup"]: 
-{	 id : 42
-	,name : "dup"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3141
-	,srcEnd : 3171
-	,code : function(){
+f.dict["dup"] : 
+{	  id : 42
+	, name : "dup"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3181
+	, srcEnd : 3211
+	, code : function(){
+		// ( n -- n n )
 		var n=f.dStk.pop();
 		f.dStk.push(n);f.dStk.push(n)
 	}
 }
 W43 code over ( a b -- a b a ) end-code
-f.dict["over"]: 
-{	 id : 43
-	,name : "over"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3174
-	,srcEnd : 3209
-	,code : function(){
+f.dict["over"] : 
+{	  id : 43
+	, name : "over"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3214
+	, srcEnd : 3249
+	, code : function(){
+		// ( a b -- a b a )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a);f.dStk.push(b);f.dStk.push(a)
 	}
@@ -901,53 +926,56 @@ f.dict["over"]:
 W44 code pick // ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
 	var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
 	end-code
-f.dict["pick"]: 
-{	 id : 44
-	,name : "pick"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3212
-	,srcEnd : 3334
-	,code : function(){
+f.dict["pick"] : 
+{	  id : 44
+	, name : "pick"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3252
+	, srcEnd : 3374
+	, code : function(){
 		// ( ni .. n1 n0 i -- ni .. n1 n0 ni ) 
-		var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i];
+		var d = f.dStk, t = d.length - 1, i = d[t]; d[t] = d[t-1-i]; 
 	}
 }
 W45 code swap ( a b -- b a ) end-code
-f.dict["swap"]: 
-{	 id : 45
-	,name : "swap"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3337
-	,srcEnd : 3370
-	,code : function(){
+f.dict["swap"] : 
+{	  id : 45
+	, name : "swap"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3377
+	, srcEnd : 3410
+	, code : function(){
+		// ( a b -- b a )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(b);f.dStk.push(a)
 	}
 }
 W46 code rot ( a b c -- b c a ) end-code
-f.dict["rot"]: 
-{	 id : 46
-	,name : "rot"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3373
-	,srcEnd : 3409
-	,code : function(){
+f.dict["rot"] : 
+{	  id : 46
+	, name : "rot"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3413
+	, srcEnd : 3449
+	, code : function(){
+		// ( a b c -- b c a )
 		var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(b);f.dStk.push(c);f.dStk.push(a)
 	}
 }
 W47 code -rot ( a b c -- c a b ) end-code
-f.dict["-rot"]: 
-{	 id : 47
-	,name : "-rot"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3412
-	,srcEnd : 3449
-	,code : function(){
+f.dict["-rot"] : 
+{	  id : 47
+	, name : "-rot"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3452
+	, srcEnd : 3489
+	, code : function(){
+		// ( a b c -- c a b )
 		var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(c);f.dStk.push(a);f.dStk.push(b)
 	}
@@ -956,214 +984,229 @@ W48 code roll // ( ni .. n1 n0 i -- .. n1 n0 ni )
 	var d = f.dStk, t = d.length - 2, i = d.pop(), ni = d[t-i];
 	while( i ){ d[t-i] = d[t-i+1]; i--; } d[t] = ni;
 	end-code
-f.dict["roll"]: 
-{	 id : 48
-	,name : "roll"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3452
-	,srcEnd : 3618
-	,code : function(){
+f.dict["roll"] : 
+{	  id : 48
+	, name : "roll"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3492
+	, srcEnd : 3658
+	, code : function(){
 		// ( ni .. n1 n0 i -- .. n1 n0 ni )
 		var d = f.dStk, t = d.length - 2, i = d.pop(), ni = d[t-i];
 		while( i ){ d[t-i] = d[t-i+1]; i--; } d[t] = ni;
 	}
 }
 W49 code base ( -- addr ) addr = f.base; end-code
-f.dict["base"]: 
-{	 id : 49
-	,name : "base"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3621
-	,srcEnd : 3666
-	,code : function(){
+f.dict["base"] : 
+{	  id : 49
+	, name : "base"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3661
+	, srcEnd : 3706
+	, code : function(){
+		// ( -- addr )
 		var addr;
 		addr = f.base; 
 		f.dStk.push(addr)
 	}
 }
 W50 code >in ( -- addr ) addr = f.toIn; end-code
-f.dict[">in"]: 
-{	 id : 50
-	,name : ">in"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3669
-	,srcEnd : 3713
-	,code : function(){
+f.dict[">in"] : 
+{	  id : 50
+	, name : ">in"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3709
+	, srcEnd : 3753
+	, code : function(){
+		// ( -- addr )
 		var addr;
 		addr = f.toIn; 
 		f.dStk.push(addr)
 	}
 }
 W51 code tracing ( -- flag ) flag = f.tracing; end-code
-f.dict["tracing"]: 
-{	 id : 51
-	,name : "tracing"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3716
-	,srcEnd : 3767
-	,code : function(){
+f.dict["tracing"] : 
+{	  id : 51
+	, name : "tracing"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3756
+	, srcEnd : 3807
+	, code : function(){
+		// ( -- flag )
 		var flag;
 		flag = f.tracing; 
 		f.dStk.push(flag)
 	}
 }
 W52 code @ ( addr -- value ) value = f.ram[addr]; end-code
-f.dict["@"]: 
-{	 id : 52
-	,name : "@"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3770
-	,srcEnd : 3824
-	,code : function(){
+f.dict["@"] : 
+{	  id : 52
+	, name : "@"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3810
+	, srcEnd : 3864
+	, code : function(){
+		// ( addr -- value )
 		var addr=f.dStk.pop(),value;
 		value = f.ram[addr]; 
 		f.dStk.push(value)
 	}
 }
 W53 code ! ( value addr -- ) f.ram[addr] = value; end-code
-f.dict["!"]: 
-{	 id : 53
-	,name : "!"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3827
-	,srcEnd : 3881
-	,code : function(){
+f.dict["!"] : 
+{	  id : 53
+	, name : "!"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3867
+	, srcEnd : 3921
+	, code : function(){
+		// ( value addr -- )
 		var addr=f.dStk.pop(),value=f.dStk.pop();
 		f.ram[addr] = value; 
 	}
 }
 W54 code ] ( -- ) f.compiling = true; end-code
-f.dict["]"]: 
-{	 id : 54
-	,name : "]"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3884
-	,srcEnd : 3926
-	,code : function(){
+f.dict["]"] : 
+{	  id : 54
+	, name : "]"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3924
+	, srcEnd : 3966
+	, code : function(){
+		// ( -- )
 		f.compiling = true; 
 	}
 }
 W55 code [ ( -- ) f.compiling = false; end-code
-f.dict["["]: 
-{	 id : 55
-	,name : "["
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3929
-	,srcEnd : 3972
-	,code : function(){
+f.dict["["] : 
+{	  id : 55
+	, name : "["
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 3969
+	, srcEnd : 4012
+	, code : function(){
+		// ( -- )
 		f.compiling = false; 
 	}
 }
 W56 code token ( <token> -- str ) str = token; end-code
-f.dict["token"]: 
-{	 id : 56
-	,name : "token"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 3975
-	,srcEnd : 4026
-	,code : function(){
+f.dict["token"] : 
+{	  id : 56
+	, name : "token"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4015
+	, srcEnd : 4066
+	, code : function(){
+		// ( <token> -- str )
 		var token=f.getToken(),str;
 		str = token; 
 		f.dStk.push(str)
 	}
 }
 W57 code , ( n -- ) f.compileOffset( n ); end-code
-f.dict[","]: 
-{	 id : 57
-	,name : ","
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4029
-	,srcEnd : 4075
-	,code : function(){
+f.dict[","] : 
+{	  id : 57
+	, name : ","
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4069
+	, srcEnd : 4115
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.compileOffset( n ); 
 	}
 }
 W58 code word, ( w -- ) f.compileWord( w ); end-code
-f.dict["word,"]: 
-{	 id : 58
-	,name : "word,"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4078
-	,srcEnd : 4126
-	,code : function(){
+f.dict["word,"] : 
+{	  id : 58
+	, name : "word,"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4118
+	, srcEnd : 4166
+	, code : function(){
+		// ( w -- )
 		var w=f.dStk.pop();
 		f.compileWord( w ); 
 	}
 }
 W59 code compile ( -- ) f.compileWord( f.head.parm[f.head.ip++] ); end-code
-f.dict["compile"]: 
-{	 id : 59
-	,name : "compile"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4129
-	,srcEnd : 4200
-	,code : function(){
+f.dict["compile"] : 
+{	  id : 59
+	, name : "compile"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4169
+	, srcEnd : 4240
+	, code : function(){
+		// ( -- )
 		f.compileWord( f.head.parm[f.head.ip++] ); 
 	}
 }
 W60 code literal ( n -- ) f.compileNumber( n ); end-code immediate
-f.dict["literal"]: 
-{	 id : 60
-	,name : "literal"
-	,immediate : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4203
-	,srcEnd : 4255
-	,code : function(){
+f.dict["literal"] : 
+{	  id : 60
+	, name : "literal"
+	, immediate : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4243
+	, srcEnd : 4295
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.compileNumber( n ); 
 	}
 }
 W61 code execute ( w -- ) f.executeWord( w ); end-code
-f.dict["execute"]: 
-{	 id : 61
-	,name : "execute"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4268
-	,srcEnd : 4318
-	,code : function(){
+f.dict["execute"] : 
+{	  id : 61
+	, name : "execute"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4308
+	, srcEnd : 4358
+	, code : function(){
+		// ( w -- )
 		var w=f.dStk.pop();
 		f.executeWord( w ); 
 	}
 }
 W62 code find ( str -- w ) w=f.dict( str ); end-code
-f.dict["find"]: 
-{	 id : 62
-	,name : "find"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4321
-	,srcEnd : 4369
-	,code : function(){
+f.dict["find"] : 
+{	  id : 62
+	, name : "find"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4361
+	, srcEnd : 4409
+	, code : function(){
+		// ( str -- w )
 		var str=f.dStk.pop(),w;
 		w=f.dict( str ); 
 		f.dStk.push(w)
 	}
 }
 W63 code ' ( <name> -- w ) w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); end-code
-f.dict["'"]: 
-{	 id : 63
-	,name : "'"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4372
-	,srcEnd : 4458
-	,code : function(){
+f.dict["'"] : 
+{	  id : 63
+	, name : "'"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4412
+	, srcEnd : 4498
+	, code : function(){
+		// ( <name> -- w )
 		var name=f.getToken(),w;
 		w=f.dict[name]; if( ! w ) panic( 'unDef ' + f.token ); 
 		f.dStk.push(w)
@@ -1177,15 +1220,16 @@ W64 code words ( -- )
 		.join( " " )
 	);
 	end-code
-f.dict["words"]: 
-{	 id : 64
-	,name : "words"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4461
-	,srcEnd : 4642
-	,code : function(){
-			f.printLn(
+f.dict["words"] : 
+{	  id : 64
+	, name : "words"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4501
+	, srcEnd : 4682
+	, code : function(){
+		// ( -- )
+		f.printLn(
 			Object.keys( f.dict )
 			.sort( (a,b) => f.dict[a].id-f.dict[b].id )
 			.map( name => "W" + f.dict[name].id + " " + name )
@@ -1194,6 +1238,39 @@ f.dict["words"]:
 	}
 }
 W65 code (see) ( w -- ) 
+	var inp = f.inps[w.iInp], src;
+	if(w.srcBgn)
+		src = inp.substring( w.srcBgn, w.srcEnd );
+	else
+		src = w.src;
+	var definedBy = w.definedBy, n; 
+	if( definedBy == 'alias' ){ 
+		var L = Object.keys( f.dict ).sort( function( a, b ){ 
+			return f.dict[a].id - f.dict[b].id; 
+	}).slice( 0, w.id ); 
+	for( var i = L.length - 1; i >= 0; i -- ){ 
+		n = f.dict[L[i]]; 
+		if( n.code == w.code ) break; 
+	} 
+	if( i >= 0 ) src = "' " + n.name + " " + src; 
+	} else if( definedBy == 'constant' || definedBy == 'value' ){  
+		var m = w.code.toString().match( /function\(\)\{f\.dStk\.push\((.+)\);\}/ );
+		src = ( m ? m[1] : JSON.stringify(w.parm) )+ " " + src; 
+	} 
+	if( w.immediate ) src += " immediate"; 
+	if( w.compileOnly ) src += " compile-only"; 
+	f.printLn( 'W' + w.id + ' ' + src ); 
+	end-code
+f.dict["(see)"] : 
+{	  id : 65
+	, name : "(see)"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 4685
+	, srcEnd : 5495
+	, code : function(){
+		// ( w -- )
+		var w=f.dStk.pop();
 		var inp = f.inps[w.iInp], src;
 		if(w.srcBgn)
 			src = inp.substring( w.srcBgn, w.srcEnd );
@@ -1216,67 +1293,37 @@ W65 code (see) ( w -- )
 		if( w.immediate ) src += " immediate"; 
 		if( w.compileOnly ) src += " compile-only"; 
 		f.printLn( 'W' + w.id + ' ' + src ); 
-	end-code
-f.dict["(see)"]: 
-{	 id : 65
-	,name : "(see)"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 4645
-	,srcEnd : 5455
-	,code : function(){
-		var w=f.dStk.pop();
-		var inp = f.inps[w.iInp], src;
-		if(w.srcBgn)
-			src = inp.substring( w.srcBgn, w.srcEnd );
-		else
-			src = w.src;
-		var definedBy = w.definedBy, n; 
-		if( definedBy == 'alias' ){ 
-			var L = Object.keys( f.dict ).sort( function( a, b ){ 
-				return f.dict[a].id - f.dict[b].id; 
-		}).slice( 0, w.id ); 
-		for( var i = L.length - 1; i >= 0; i -- ){ 
-			n = f.dict[L[i]]; 
-			if( n.code == w.code ) break; 
-		} 
-		if( i >= 0 ) src = "' " + n.name + " " + src; 
-		} else if( definedBy == 'constant' || definedBy == 'value' ){  
-			var m = w.code.toString().match( /function\(\)\{f\.dStk\.push\((.+)\);\}/ );
-			src = ( m ? m[1] : JSON.stringify(w.parm) )+ " " + src; 
-		} 
-		if( w.immediate ) src += " immediate"; 
-		if( w.compileOnly ) src += " compile-only"; 
-		f.printLn( 'W' + w.id + ' ' + src );=
 	}
 }
 W66 code seeAll ( -- )
-		for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
+	for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
 	end-code
-f.dict["seeAll"]: 
-{	 id : 66
-	,name : "seeAll"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5458
-	,srcEnd : 5564
-	,code : function(){
+f.dict["seeAll"] : 
+{	  id : 66
+	, name : "seeAll"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5498
+	, srcEnd : 5604
+	, code : function(){
+		// ( -- )
 		for( name in f.dict ){ f.dStk.push( f.dict[name] ),f.dict["(see)"].code(); }
 	}
 }
 W67 code alias ( w <name> -- )
-		var n = f.createWord( name, w.code );
-		if( w.parm ) n.parm = w.parm;
-		f.addWord( n );
+	var n = f.createWord( name, w.code );
+	if( w.parm ) n.parm = w.parm;
+	f.addWord( n );
 	end-code
-f.dict["alias"]: 
-{	 id : 67
-	,name : "alias"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5567
-	,srcEnd : 5690
-	,code : function(){
+f.dict["alias"] : 
+{	  id : 67
+	, name : "alias"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5607
+	, srcEnd : 5730
+	, code : function(){
+		// ( w <name> -- )
 		var name=f.getToken(),w=f.dStk.pop();
 		var n = f.createWord( name, w.code );
 		if( w.parm ) n.parm = w.parm;
@@ -1284,1155 +1331,1185 @@ f.dict["alias"]:
 	}
 }
 W68 code > ( a b -- a>b ) end-code
-f.dict[">"]: 
-{	 id : 68
-	,name : ">"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5693
-	,srcEnd : 5723
-	,code : function(){
+f.dict[">"] : 
+{	  id : 68
+	, name : ">"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5733
+	, srcEnd : 5763
+	, code : function(){
+		// ( a b -- a>b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a>b)
 	}
 }
 W69 code < ( a b -- a<b ) end-code
-f.dict["<"]: 
-{	 id : 69
-	,name : "<"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5725
-	,srcEnd : 5755
-	,code : function(){
+f.dict["<"] : 
+{	  id : 69
+	, name : "<"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5765
+	, srcEnd : 5795
+	, code : function(){
+		// ( a b -- a<b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a<b)
 	}
 }
 W70 code >= ( a b -- a>=b ) end-code
-f.dict[">="]: 
-{	 id : 70
-	,name : ">="
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5757
-	,srcEnd : 5789
-	,code : function(){
+f.dict[">="] : 
+{	  id : 70
+	, name : ">="
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5797
+	, srcEnd : 5829
+	, code : function(){
+		// ( a b -- a>=b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a>=b)
 	}
 }
 W71 code <= ( a b -- a<=b ) end-code
-f.dict["<="]: 
-{	 id : 71
-	,name : "<="
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5791
-	,srcEnd : 5823
-	,code : function(){
+f.dict["<="] : 
+{	  id : 71
+	, name : "<="
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5831
+	, srcEnd : 5863
+	, code : function(){
+		// ( a b -- a<=b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a<=b)
 	}
 }
 W72 code = ( a b -- a=b ) end-code
-f.dict["="]: 
-{	 id : 72
-	,name : "="
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5825
-	,srcEnd : 5855
-	,code : function(){
+f.dict["="] : 
+{	  id : 72
+	, name : "="
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5865
+	, srcEnd : 5895
+	, code : function(){
+		// ( a b -- a=b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a=b)
 	}
 }
 W73 code <> ( a b -- a!=b ) end-code
-f.dict["<>"]: 
-{	 id : 73
-	,name : "<>"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5857
-	,srcEnd : 5889
-	,code : function(){
+f.dict["<>"] : 
+{	  id : 73
+	, name : "<>"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5897
+	, srcEnd : 5929
+	, code : function(){
+		// ( a b -- a!=b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a!=b)
 	}
 }
 W74 code 1+ ( n -- n+1 ) end-code
-f.dict["1+"]: 
-{	 id : 74
-	,name : "1+"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5891
-	,srcEnd : 5920
-	,code : function(){
+f.dict["1+"] : 
+{	  id : 74
+	, name : "1+"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5931
+	, srcEnd : 5960
+	, code : function(){
+		// ( n -- n+1 )
 		var n=f.dStk.pop();
 		f.dStk.push(n+1)
 	}
 }
 W75 code 1- ( n -- n-1 ) end-code
-f.dict["1-"]: 
-{	 id : 75
-	,name : "1-"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5922
-	,srcEnd : 5951
-	,code : function(){
+f.dict["1-"] : 
+{	  id : 75
+	, name : "1-"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5962
+	, srcEnd : 5991
+	, code : function(){
+		// ( n -- n-1 )
 		var n=f.dStk.pop();
 		f.dStk.push(n-1)
 	}
 }
 W76 code 2+ ( n -- n+2 ) end-code
-f.dict["2+"]: 
-{	 id : 76
-	,name : "2+"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5953
-	,srcEnd : 5982
-	,code : function(){
+f.dict["2+"] : 
+{	  id : 76
+	, name : "2+"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 5993
+	, srcEnd : 6022
+	, code : function(){
+		// ( n -- n+2 )
 		var n=f.dStk.pop();
 		f.dStk.push(n+2)
 	}
 }
 W77 code 2- ( n -- n-2 ) end-code
-f.dict["2-"]: 
-{	 id : 77
-	,name : "2-"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 5984
-	,srcEnd : 6013
-	,code : function(){
+f.dict["2-"] : 
+{	  id : 77
+	, name : "2-"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6024
+	, srcEnd : 6053
+	, code : function(){
+		// ( n -- n-2 )
 		var n=f.dStk.pop();
 		f.dStk.push(n-2)
 	}
 }
 W78 code 2dup ( a b -- a b a b ) end-code
-f.dict["2dup"]: 
-{	 id : 78
-	,name : "2dup"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6015
-	,srcEnd : 6052
-	,code : function(){
+f.dict["2dup"] : 
+{	  id : 78
+	, name : "2dup"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6055
+	, srcEnd : 6092
+	, code : function(){
+		// ( a b -- a b a b )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a);f.dStk.push(b);f.dStk.push(a);f.dStk.push(b)
 	}
 }
 W79 code 2drop ( a b -- ) end-code
-f.dict["2drop"]: 
-{	 id : 79
-	,name : "2drop"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6054
-	,srcEnd : 6084
-	,code : function(){
+f.dict["2drop"] : 
+{	  id : 79
+	, name : "2drop"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6094
+	, srcEnd : 6124
+	, code : function(){
+		// ( a b -- )
 		var b=f.dStk.pop(),a=f.dStk.pop();
 	}
 }
 W80 code 3drop ( a b c -- ) end-code
-f.dict["3drop"]: 
-{	 id : 80
-	,name : "3drop"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6086
-	,srcEnd : 6118
-	,code : function(){
+f.dict["3drop"] : 
+{	  id : 80
+	, name : "3drop"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6126
+	, srcEnd : 6158
+	, code : function(){
+		// ( a b c -- )
 		var c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
 	}
 }
 W81 code 2over ( a b c d -- a b c d a b ) end-code
-f.dict["2over"]: 
-{	 id : 81
-	,name : "2over"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6120
-	,srcEnd : 6166
-	,code : function(){
+f.dict["2over"] : 
+{	  id : 81
+	, name : "2over"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6160
+	, srcEnd : 6206
+	, code : function(){
+		// ( a b c d -- a b c d a b )
 		var d=f.dStk.pop(),c=f.dStk.pop(),b=f.dStk.pop(),a=f.dStk.pop();
 		f.dStk.push(a);f.dStk.push(b);f.dStk.push(c);f.dStk.push(d);f.dStk.push(a);f.dStk.push(b)
 	}
 }
 W82 code depth ( -- n ) n=f.dStk.length; end-code
-f.dict["depth"]: 
-{	 id : 82
-	,name : "depth"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6168
-	,srcEnd : 6213
-	,code : function(){
+f.dict["depth"] : 
+{	  id : 82
+	, name : "depth"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6208
+	, srcEnd : 6253
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.dStk.length; 
 		f.dStk.push(n)
 	}
 }
 W83 code r@ ( -- n ) n=f.rStk[f.rStk.length-1]; end-code
-f.dict["r@"]: 
-{	 id : 83
-	,name : "r@"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6215
-	,srcEnd : 6267
-	,code : function(){
+f.dict["r@"] : 
+{	  id : 83
+	, name : "r@"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6255
+	, srcEnd : 6307
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.rStk[f.rStk.length-1]; 
 		f.dStk.push(n)
 	}
 }
 W84 ' r@ alias i
-f.dict["i"]: 
-{	 id : 84
-	,name : "i"
-	,definedBy : "alias"
-	,iInp : 0
-	,srcBgn : 6274
-	,srcEnd : 6281
-	,code : function(){
+f.dict["i"] : 
+{	  id : 84
+	, name : "i"
+	, definedBy : "alias"
+	, iInp : 0
+	, srcBgn : 6314
+	, srcEnd : 6321
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.rStk[f.rStk.length-1]; 
 		f.dStk.push(n)
 	}
 }
 W85 code r> ( -- n ) n=f.rStk.pop(); end-code
-f.dict["r>"]: 
-{	 id : 85
-	,name : "r>"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6283
-	,srcEnd : 6324
-	,code : function(){
+f.dict["r>"] : 
+{	  id : 85
+	, name : "r>"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6323
+	, srcEnd : 6364
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.rStk.pop(); 
 		f.dStk.push(n)
 	}
 }
 W86 code >r ( n -- ) f.rStk.push(n); end-code
-f.dict[">r"]: 
-{	 id : 86
-	,name : ">r"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6326
-	,srcEnd : 6367
-	,code : function(){
+f.dict[">r"] : 
+{	  id : 86
+	, name : ">r"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6366
+	, srcEnd : 6407
+	, code : function(){
+		// ( n -- )
 		var n=f.dStk.pop();
 		f.rStk.push(n); 
 	}
 }
 W87 code here ( -- n ) n=f.last.parm.length; end-code
-f.dict["here"]: 
-{	 id : 87
-	,name : "here"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6369
-	,srcEnd : 6418
-	,code : function(){
+f.dict["here"] : 
+{	  id : 87
+	, name : "here"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6409
+	, srcEnd : 6458
+	, code : function(){
+		// ( -- n )
 		var n;
 		n=f.last.parm.length; 
 		f.dStk.push(n)
 	}
 }
 W88 code compileTo ( n a -- ) f.last.parm[a]=n; end-code
-f.dict["compileTo"]: 
-{	 id : 88
-	,name : "compileTo"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6421
-	,srcEnd : 6473
-	,code : function(){
+f.dict["compileTo"] : 
+{	  id : 88
+	, name : "compileTo"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6461
+	, srcEnd : 6513
+	, code : function(){
+		// ( n a -- )
 		var a=f.dStk.pop(),n=f.dStk.pop();
 		f.last.parm[a]=n; 
 	}
 }
 W89 code bl ( -- 32 ) end-code
-f.dict["bl"]: 
-{	 id : 89
-	,name : "bl"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6476
-	,srcEnd : 6502
-	,code : function(){
+f.dict["bl"] : 
+{	  id : 89
+	, name : "bl"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6516
+	, srcEnd : 6542
+	, code : function(){
+		// ( -- 32 )
 		f.dStk.push(32)
 	}
 }
 W90 code quote ( -- 34 ) end-code
-f.dict["quote"]: 
-{	 id : 90
-	,name : "quote"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6505
-	,srcEnd : 6534
-	,code : function(){
+f.dict["quote"] : 
+{	  id : 90
+	, name : "quote"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6545
+	, srcEnd : 6574
+	, code : function(){
+		// ( -- 34 )
 		f.dStk.push(34)
 	}
 }
 W91 code word ( delimiter -- str ) str = f.getToken( delimiter ); end-code
-f.dict["word"]: 
-{	 id : 91
-	,name : "word"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6537
-	,srcEnd : 6607
-	,code : function(){
+f.dict["word"] : 
+{	  id : 91
+	, name : "word"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6577
+	, srcEnd : 6647
+	, code : function(){
+		// ( delimiter -- str )
 		var delimiter=f.dStk.pop(),str;
 		str = f.getToken( delimiter ); 
 		f.dStk.push(str)
 	}
 }
 W92 code (to) ( n w -- ) if( w.definedBy != 'value' )f.panic( 'cannot set value to ' + w.name ); w.parm = n; end-code
-f.dict["(to)"]: 
-{	 id : 92
-	,name : "(to)"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6609
-	,srcEnd : 6722
-	,code : function(){
+f.dict["(to)"] : 
+{	  id : 92
+	, name : "(to)"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6649
+	, srcEnd : 6762
+	, code : function(){
+		// ( n w -- )
 		var w=f.dStk.pop(),n=f.dStk.pop();
 		if( w.definedBy != 'value' )f.panic( 'cannot set value to ' + w.name ); w.parm = n; 
 	}
 }
 W93 code (+to) ( n w -- ) if( w.definedBy != 'value' )f.panic( 'cannot add value to ' + w.name ); w.parm += n; end-code
-f.dict["(+to)"]: 
-{	 id : 93
-	,name : "(+to)"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6724
-	,srcEnd : 6839
-	,code : function(){
+f.dict["(+to)"] : 
+{	  id : 93
+	, name : "(+to)"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6764
+	, srcEnd : 6879
+	, code : function(){
+		// ( n w -- )
 		var w=f.dStk.pop(),n=f.dStk.pop();
 		if( w.definedBy != 'value' )f.panic( 'cannot add value to ' + w.name ); w.parm += n; 
 	}
 }
 W94 code compiling ( -- flag ) flag = f.compiling; end-code
-f.dict["compiling"]: 
-{	 id : 94
-	,name : "compiling"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6841
-	,srcEnd : 6896
-	,code : function(){
+f.dict["compiling"] : 
+{	  id : 94
+	, name : "compiling"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6881
+	, srcEnd : 6936
+	, code : function(){
+		// ( -- flag )
 		var flag;
 		flag = f.compiling; 
 		f.dStk.push(flag)
 	}
 }
 W95 code ." ( <str>" -- ) f.compile( f.dict.doStr ); f.compile( str ); f.compile( f.dict.type ); end-code immediate
-f.dict[".""]: 
-{	 id : 95
-	,name : ".""
-	,immediate : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 6899
-	,srcEnd : 7000
-	,code : function(){
+f.dict[".""] : 
+{	  id : 95
+	, name : ".""
+	, immediate : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 6939
+	, srcEnd : 7040
+	, code : function(){
+		// ( <str>" -- )
 		var str=f.getToken('"');
 		f.compile( f.dict.doStr ); f.compile( str ); f.compile( f.dict.type ); 
 	}
 }
-W96 code $" ( <str>" -- i : str )
-		if( f.compiling ) f.compile( f.dict.doStr ), f.compile( str );
+W96 code $" ( <str>" -- i:str )
+	if( f.compiling ) f.compile( f.dict.doStr ), f.compile( str );
 	end-code immediate
-f.dict["$""]: 
-{	 id : 96
-	,name : "$""
-	,immediate : true
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 7013
-	,srcEnd : 7114
-	,code : function(){
+f.dict["$""] : 
+{	  id : 96
+	, name : "$""
+	, immediate : true
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 7053
+	, srcEnd : 7154
+	, code : function(){
+		// ( <str>" -- i:str )
 		var str=f.getToken('"');
 		if( f.compiling ) f.compile( f.dict.doStr ), f.compile( str );
 		if(!f.compiling)f.dStk.push(str)
 	}
 }
 W97 : see ( <name> -- ) ' (see) ;
-f.dict["see"]: 
-{	 id : 97
-	,name : "see"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7129
-	,srcEnd : 7158
-	,code : function doCol(){		// colon word handler
+f.dict["see"] : 
+{	  id : 97
+	, name : "see"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7169
+	, srcEnd : 7198
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W65 (see)
-		,2 : W10 doRet
-		,length : 3
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W65 (see)
+		, 2 : W10 doRet
+		, length : 3
 		}
 }
 W98 : ? ( addr -- ) @ . ;
-f.dict["?"]: 
-{	 id : 98
-	,name : "?"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7161
-	,srcEnd : 7182
-	,code : function doCol(){		// colon word handler
+f.dict["?"] : 
+{	  id : 98
+	, name : "?"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7201
+	, srcEnd : 7222
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W52 @
-		,1 : W31 .
-		,2 : W10 doRet
-		,length : 3
+	, parm : 
+		{ 0 : W52 @
+		, 1 : W31 .
+		, 2 : W10 doRet
+		, length : 3
 		}
 }
 W99 : on ( addr -- ) 1 swap ! ;
-f.dict["on"]: 
-{	 id : 99
-	,name : "on"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7185
-	,srcEnd : 7212
-	,code : function doCol(){		// colon word handler
+f.dict["on"] : 
+{	  id : 99
+	, name : "on"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7225
+	, srcEnd : 7252
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 1
-		,2 : W45 swap
-		,3 : W53 !
-		,4 : W10 doRet
-		,length : 5
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 1
+		, 2 : W45 swap
+		, 3 : W53 !
+		, 4 : W10 doRet
+		, length : 5
 		}
 }
 W100 : off ( addr -- ) 0 swap ! ;
-f.dict["off"]: 
-{	 id : 100
-	,name : "off"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7215
-	,srcEnd : 7243
-	,code : function doCol(){		// colon word handler
+f.dict["off"] : 
+{	  id : 100
+	, name : "off"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7255
+	, srcEnd : 7283
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 0
-		,2 : W45 swap
-		,3 : W53 !
-		,4 : W10 doRet
-		,length : 5
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 0
+		, 2 : W45 swap
+		, 3 : W53 !
+		, 4 : W10 doRet
+		, length : 5
 		}
 }
 W101 : (trace) ( w -- ) tracing on execute tracing off ;
-f.dict["(trace)"]: 
-{	 id : 101
-	,name : "(trace)"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7246
-	,srcEnd : 7297
-	,code : function doCol(){		// colon word handler
+f.dict["(trace)"] : 
+{	  id : 101
+	, name : "(trace)"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7286
+	, srcEnd : 7337
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W51 tracing
-		,1 : W99 on
-		,2 : W61 execute
-		,3 : W51 tracing
-		,4 : W100 off
-		,5 : W10 doRet
-		,length : 6
+	, parm : 
+		{ 0 : W51 tracing
+		, 1 : W99 on
+		, 2 : W61 execute
+		, 3 : W51 tracing
+		, 4 : W100 off
+		, 5 : W10 doRet
+		, length : 6
 		}
 }
 W102 : trace ( <word> -- ) ' (trace) ;
-f.dict["trace"]: 
-{	 id : 102
-	,name : "trace"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7300
-	,srcEnd : 7333
-	,code : function doCol(){		// colon word handler
+f.dict["trace"] : 
+{	  id : 102
+	, name : "trace"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7340
+	, srcEnd : 7373
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W101 (trace)
-		,2 : W10 doRet
-		,length : 3
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W101 (trace)
+		, 2 : W10 doRet
+		, length : 3
 		}
 }
 W103 : hex ( -- ) 16 base ! ;
-f.dict["hex"]: 
-{	 id : 103
-	,name : "hex"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7336
-	,srcEnd : 7360
-	,code : function doCol(){		// colon word handler
+f.dict["hex"] : 
+{	  id : 103
+	, name : "hex"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7376
+	, srcEnd : 7400
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 16
-		,2 : W49 base
-		,3 : W53 !
-		,4 : W10 doRet
-		,length : 5
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 16
+		, 2 : W49 base
+		, 3 : W53 !
+		, 4 : W10 doRet
+		, length : 5
 		}
 }
 W104 : decimal ( -- ) 10 base ! ;
-f.dict["decimal"]: 
-{	 id : 104
-	,name : "decimal"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7362
-	,srcEnd : 7390
-	,code : function doCol(){		// colon word handler
+f.dict["decimal"] : 
+{	  id : 104
+	, name : "decimal"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7402
+	, srcEnd : 7430
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 10
-		,2 : W49 base
-		,3 : W53 !
-		,4 : W10 doRet
-		,length : 5
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 10
+		, 2 : W49 base
+		, 3 : W53 !
+		, 4 : W10 doRet
+		, length : 5
 		}
 }
 W105 : h. ( number -- ) base @ swap hex . base ! ;
-f.dict["h."]: 
-{	 id : 105
-	,name : "h."
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7393
-	,srcEnd : 7438
-	,code : function doCol(){		// colon word handler
+f.dict["h."] : 
+{	  id : 105
+	, name : "h."
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7433
+	, srcEnd : 7478
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W49 base
-		,1 : W52 @
-		,2 : W45 swap
-		,3 : W103 hex
-		,4 : W31 .
-		,5 : W49 base
-		,6 : W53 !
-		,7 : W10 doRet
-		,length : 8
+	, parm : 
+		{ 0 : W49 base
+		, 1 : W52 @
+		, 2 : W45 swap
+		, 3 : W103 hex
+		, 4 : W31 .
+		, 5 : W49 base
+		, 6 : W53 !
+		, 7 : W10 doRet
+		, length : 8
 		}
 }
 W106 : h.r ( number n -- ) base @ -rot hex .r base ! ;
-f.dict["h.r"]: 
-{	 id : 106
-	,name : "h.r"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7441
-	,srcEnd : 7490
-	,code : function doCol(){		// colon word handler
+f.dict["h.r"] : 
+{	  id : 106
+	, name : "h.r"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7481
+	, srcEnd : 7530
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W49 base
-		,1 : W52 @
-		,2 : W47 -rot
-		,3 : W103 hex
-		,4 : W32 .r
-		,5 : W49 base
-		,6 : W53 !
-		,7 : W10 doRet
-		,length : 8
+	, parm : 
+		{ 0 : W49 base
+		, 1 : W52 @
+		, 2 : W47 -rot
+		, 3 : W103 hex
+		, 4 : W32 .r
+		, 5 : W49 base
+		, 6 : W53 !
+		, 7 : W10 doRet
+		, length : 8
 		}
 }
 W107 : h.0r ( number n -- ) base @ -rot hex .0r base ! ;
-f.dict["h.0r"]: 
-{	 id : 107
-	,name : "h.0r"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7493
-	,srcEnd : 7544
-	,code : function doCol(){		// colon word handler
+f.dict["h.0r"] : 
+{	  id : 107
+	, name : "h.0r"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7533
+	, srcEnd : 7584
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W49 base
-		,1 : W52 @
-		,2 : W47 -rot
-		,3 : W103 hex
-		,4 : W33 .0r
-		,5 : W49 base
-		,6 : W53 !
-		,7 : W10 doRet
-		,length : 8
+	, parm : 
+		{ 0 : W49 base
+		, 1 : W52 @
+		, 2 : W47 -rot
+		, 3 : W103 hex
+		, 4 : W33 .0r
+		, 5 : W49 base
+		, 6 : W53 !
+		, 7 : W10 doRet
+		, length : 8
 		}
 }
 W108 : forward, ( a -- ) here over - swap compileTo ;
-f.dict["forward,"]: 
-{	 id : 108
-	,name : "forward,"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7547
-	,srcEnd : 7595
-	,code : function doCol(){		// colon word handler
+f.dict["forward,"] : 
+{	  id : 108
+	, name : "forward,"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7587
+	, srcEnd : 7635
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W87 here
-		,1 : W43 over
-		,2 : W35 -
-		,3 : W45 swap
-		,4 : W88 compileTo
-		,5 : W10 doRet
-		,length : 6
+	, parm : 
+		{ 0 : W87 here
+		, 1 : W43 over
+		, 2 : W35 -
+		, 3 : W45 swap
+		, 4 : W88 compileTo
+		, 5 : W10 doRet
+		, length : 6
 		}
 }
 W109 : backward, ( a -- ) here - , ;
-f.dict["backward,"]: 
-{	 id : 109
-	,name : "backward,"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7598
-	,srcEnd : 7629
-	,code : function doCol(){		// colon word handler
+f.dict["backward,"] : 
+{	  id : 109
+	, name : "backward,"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7638
+	, srcEnd : 7669
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W87 here
-		,1 : W35 -
-		,2 : W57 ,
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W87 here
+		, 1 : W35 -
+		, 2 : W57 ,
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W110 : for ( -- a ) compile doFor here ; immediate
-f.dict["for"]: 
-{	 id : 110
-	,name : "for"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7632
-	,srcEnd : 7667
-	,code : function doCol(){		// colon word handler
+f.dict["for"] : 
+{	  id : 110
+	, name : "for"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7672
+	, srcEnd : 7707
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W13 doFor
-		,2 : W87 here
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W13 doFor
+		, 2 : W87 here
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W111 : next ( a -- ) compile doNext backward, ; immediate
-f.dict["next"]: 
-{	 id : 111
-	,name : "next"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7680
-	,srcEnd : 7722
-	,code : function doCol(){		// colon word handler
+f.dict["next"] : 
+{	  id : 111
+	, name : "next"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7720
+	, srcEnd : 7762
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W14 doNext
-		,2 : W109 backward,
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W14 doNext
+		, 2 : W109 backward,
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W112 : if ( -- a ) compile doIf here 0 , ; immediate
-f.dict["if"]: 
-{	 id : 112
-	,name : "if"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7735
-	,srcEnd : 7772
-	,code : function doCol(){		// colon word handler
+f.dict["if"] : 
+{	  id : 112
+	, name : "if"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7775
+	, srcEnd : 7812
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W15 doIf
-		,2 : W87 here
-		,3 : W8 doLit
-		,4 : 0
-		,5 : W57 ,
-		,6 : W10 doRet
-		,length : 7
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W15 doIf
+		, 2 : W87 here
+		, 3 : W8 doLit
+		, 4 : 0
+		, 5 : W57 ,
+		, 6 : W10 doRet
+		, length : 7
 		}
 }
 W113 : else ( a -- b ) compile doElse here 0 , swap forward, ; immediate
-f.dict["else"]: 
-{	 id : 113
-	,name : "else"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7785
-	,srcEnd : 7842
-	,code : function doCol(){		// colon word handler
+f.dict["else"] : 
+{	  id : 113
+	, name : "else"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7825
+	, srcEnd : 7882
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W16 doElse
-		,2 : W87 here
-		,3 : W8 doLit
-		,4 : 0
-		,5 : W57 ,
-		,6 : W45 swap
-		,7 : W108 forward,
-		,8 : W10 doRet
-		,length : 9
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W16 doElse
+		, 2 : W87 here
+		, 3 : W8 doLit
+		, 4 : 0
+		, 5 : W57 ,
+		, 6 : W45 swap
+		, 7 : W108 forward,
+		, 8 : W10 doRet
+		, length : 9
 		}
 }
 W114 : then ( a -- ) compile doThen forward, ; immediate
-f.dict["then"]: 
-{	 id : 114
-	,name : "then"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7855
-	,srcEnd : 7896
-	,code : function doCol(){		// colon word handler
+f.dict["then"] : 
+{	  id : 114
+	, name : "then"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7895
+	, srcEnd : 7936
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W17 doThen
-		,2 : W108 forward,
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W17 doThen
+		, 2 : W108 forward,
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W115 : begin ( -- a ) compile doBegin here ; immediate
-f.dict["begin"]: 
-{	 id : 115
-	,name : "begin"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7909
-	,srcEnd : 7948
-	,code : function doCol(){		// colon word handler
+f.dict["begin"] : 
+{	  id : 115
+	, name : "begin"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 7949
+	, srcEnd : 7988
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W18 doBegin
-		,2 : W87 here
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W18 doBegin
+		, 2 : W87 here
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W116 : again ( a -- ) compile doAgain backward, ; immediate
-f.dict["again"]: 
-{	 id : 116
-	,name : "again"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 7961
-	,srcEnd : 8005
-	,code : function doCol(){		// colon word handler
+f.dict["again"] : 
+{	  id : 116
+	, name : "again"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8001
+	, srcEnd : 8045
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W19 doAgain
-		,2 : W109 backward,
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W19 doAgain
+		, 2 : W109 backward,
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W117 : until ( a -- ) compile doUntil backward, ; immediate
-f.dict["until"]: 
-{	 id : 117
-	,name : "until"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8018
-	,srcEnd : 8062
-	,code : function doCol(){		// colon word handler
+f.dict["until"] : 
+{	  id : 117
+	, name : "until"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8058
+	, srcEnd : 8102
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W20 doUntil
-		,2 : W109 backward,
-		,3 : W10 doRet
-		,length : 4
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W20 doUntil
+		, 2 : W109 backward,
+		, 3 : W10 doRet
+		, length : 4
 		}
 }
 W118 : while ( a -- a b ) compile doWhile here 0 , ; immediate
-f.dict["while"]: 
-{	 id : 118
-	,name : "while"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8075
-	,srcEnd : 8122
-	,code : function doCol(){		// colon word handler
+f.dict["while"] : 
+{	  id : 118
+	, name : "while"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8115
+	, srcEnd : 8162
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W21 doWhile
-		,2 : W87 here
-		,3 : W8 doLit
-		,4 : 0
-		,5 : W57 ,
-		,6 : W10 doRet
-		,length : 7
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W21 doWhile
+		, 2 : W87 here
+		, 3 : W8 doLit
+		, 4 : 0
+		, 5 : W57 ,
+		, 6 : W10 doRet
+		, length : 7
 		}
 }
 W119 : repeat ( a b -- ) compile doRepeat swap backward, forward, ; immediate
-f.dict["repeat"]: 
-{	 id : 119
-	,name : "repeat"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8135
-	,srcEnd : 8197
-	,code : function doCol(){		// colon word handler
+f.dict["repeat"] : 
+{	  id : 119
+	, name : "repeat"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8175
+	, srcEnd : 8237
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W59 compile
-		,1 : W22 doRepeat
-		,2 : W45 swap
-		,3 : W109 backward,
-		,4 : W108 forward,
-		,5 : W10 doRet
-		,length : 6
+	, parm : 
+		{ 0 : W59 compile
+		, 1 : W22 doRepeat
+		, 2 : W45 swap
+		, 3 : W109 backward,
+		, 4 : W108 forward,
+		, 5 : W10 doRet
+		, length : 6
 		}
 }
 W120 : t9 ( n -- ) 8 for dup 9 i - * 3 .r next drop cr ;
-f.dict["t9"]: 
-{	 id : 120
-	,name : "t9"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8210
-	,srcEnd : 8261
-	,code : function doCol(){		// colon word handler
+f.dict["t9"] : 
+{	  id : 120
+	, name : "t9"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8250
+	, srcEnd : 8301
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 8
-		,2 : W13 doFor
-		,3 : W42 dup
-		,4 : W8 doLit
-		,5 : 9
-		,6 : W84 i
-		,7 : W35 -
-		,8 : W36 *
-		,9 : W8 doLit
-		,10 : 3
-		,11 : W32 .r
-		,12 : W14 doNext
-		,13 : -10
-		,14 : W40 drop
-		,15 : W25 cr
-		,16 : W10 doRet
-		,length : 17
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 8
+		, 2 : W13 doFor
+		, 3 : W42 dup
+		, 4 : W8 doLit
+		, 5 : 9
+		, 6 : W84 i
+		, 7 : W35 -
+		, 8 : W36 *
+		, 9 : W8 doLit
+		, 10 : 3
+		, 11 : W32 .r
+		, 12 : W14 doNext
+		, 13 : -10
+		, 14 : W40 drop
+		, 15 : W25 cr
+		, 16 : W10 doRet
+		, length : 17
 		}
 }
 W121 : t99 ( -- ) 1 begin dup 10 < while dup t9 1+ repeat drop ;
-f.dict["t99"]: 
-{	 id : 121
-	,name : "t99"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8264
-	,srcEnd : 8323
-	,code : function doCol(){		// colon word handler
+f.dict["t99"] : 
+{	  id : 121
+	, name : "t99"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8304
+	, srcEnd : 8363
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W8 doLit
-		,1 : 1
-		,2 : W18 doBegin
-		,3 : W42 dup
-		,4 : W8 doLit
-		,5 : 10
-		,6 : W69 <
-		,7 : W21 doWhile
-		,8 : 6
-		,9 : W42 dup
-		,10 : W120 t9
-		,11 : W74 1+
-		,12 : W22 doRepeat
-		,13 : -10
-		,14 : W40 drop
-		,15 : W10 doRet
-		,length : 16
+	, parm : 
+		{ 0 : W8 doLit
+		, 1 : 1
+		, 2 : W18 doBegin
+		, 3 : W42 dup
+		, 4 : W8 doLit
+		, 5 : 10
+		, 6 : W69 <
+		, 7 : W21 doWhile
+		, 8 : 6
+		, 9 : W42 dup
+		, 10 : W120 t9
+		, 11 : W74 1+
+		, 12 : W22 doRepeat
+		, 13 : -10
+		, 14 : W40 drop
+		, 15 : W10 doRet
+		, length : 16
 		}
 }
 W122 : [compile] ( <name> -- ) ' , ; immediate
-f.dict["[compile]"]: 
-{	 id : 122
-	,name : "[compile]"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8326
-	,srcEnd : 8357
-	,code : function doCol(){		// colon word handler
+f.dict["[compile]"] : 
+{	  id : 122
+	, name : "[compile]"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8366
+	, srcEnd : 8397
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W57 ,
-		,2 : W10 doRet
-		,length : 3
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W57 ,
+		, 2 : W10 doRet
+		, length : 3
 		}
 }
 W123 : to ( n <name> -- ) ' compiling if [compile] literal compile (to) else (to) then ; immediate
-f.dict["to"]: 
-{	 id : 123
-	,name : "to"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8370
-	,srcEnd : 8453
-	,code : function doCol(){		// colon word handler
+f.dict["to"] : 
+{	  id : 123
+	, name : "to"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8410
+	, srcEnd : 8493
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W94 compiling
-		,2 : W15 doIf
-		,3 : 6
-		,4 : W60 literal
-		,5 : W59 compile
-		,6 : W92 (to)
-		,7 : W16 doElse
-		,8 : 3
-		,9 : W92 (to)
-		,10 : W17 doThen
-		,11 : W10 doRet
-		,length : 12
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W94 compiling
+		, 2 : W15 doIf
+		, 3 : 6
+		, 4 : W60 literal
+		, 5 : W59 compile
+		, 6 : W92 (to)
+		, 7 : W16 doElse
+		, 8 : 3
+		, 9 : W92 (to)
+		, 10 : W17 doThen
+		, 11 : W10 doRet
+		, length : 12
 		}
 }
 W124 : +to ( n <name> -- ) ' compiling if [compile] literal compile (+to) else (+to) then ; immediate
-f.dict["+to"]: 
-{	 id : 124
-	,name : "+to"
-	,immediate : true
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8466
-	,srcEnd : 8552
-	,code : function doCol(){		// colon word handler
+f.dict["+to"] : 
+{	  id : 124
+	, name : "+to"
+	, immediate : true
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8506
+	, srcEnd : 8592
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W94 compiling
-		,2 : W15 doIf
-		,3 : 6
-		,4 : W60 literal
-		,5 : W59 compile
-		,6 : W93 (+to)
-		,7 : W16 doElse
-		,8 : 3
-		,9 : W93 (+to)
-		,10 : W17 doThen
-		,11 : W10 doRet
-		,length : 12
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W94 compiling
+		, 2 : W15 doIf
+		, 3 : 6
+		, 4 : W60 literal
+		, 5 : W59 compile
+		, 6 : W93 (+to)
+		, 7 : W16 doElse
+		, 8 : 3
+		, 9 : W93 (+to)
+		, 10 : W17 doThen
+		, 11 : W10 doRet
+		, length : 12
 		}
 }
 W125 : .s depth if depth 1- for r@ pick . next else ." empty " then cr ;
-f.dict[".s"]: 
-{	 id : 125
-	,name : ".s"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 8565
-	,srcEnd : 8632
-	,code : function doCol(){		// colon word handler
+f.dict[".s"] : 
+{	  id : 125
+	, name : ".s"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 8605
+	, srcEnd : 8672
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W82 depth
-		,1 : W15 doIf
-		,2 : 11
-		,3 : W82 depth
-		,4 : W75 1-
-		,5 : W13 doFor
-		,6 : W83 r@
-		,7 : W44 pick
-		,8 : W31 .
-		,9 : W14 doNext
-		,10 : -4
-		,11 : W16 doElse
-		,12 : 5
-		,13 : W9 doStr
-		,14 : empty 
-		,15 : W29 type
-		,16 : W17 doThen
-		,17 : W25 cr
-		,18 : W10 doRet
-		,length : 19
+	, parm : 
+		{ 0 : W82 depth
+		, 1 : W15 doIf
+		, 2 : 11
+		, 3 : W82 depth
+		, 4 : W75 1-
+		, 5 : W13 doFor
+		, 6 : W83 r@
+		, 7 : W44 pick
+		, 8 : W31 .
+		, 9 : W14 doNext
+		, 10 : -4
+		, 11 : W16 doElse
+		, 12 : 5
+		, 13 : W9 doStr
+		, 14 : empty 
+		, 15 : W29 type
+		, 16 : W17 doThen
+		, 17 : W25 cr
+		, 18 : W10 doRet
+		, length : 19
 		}
 }
 W126 code (seeWord) ( w -- )
-		f.dStk.push( w ),f.dict['(see)'].code();
-		f.printLn('f.dict["'+w.name+'"]: ');
-		f.printLn('\t{id : '+w.id);
-		f.printLn('\t,name : "'+w.name+'"');
-		if(w.immediate)f.printLn('\t,immediate : '+w.immediate);
-		if(w.compileOnly)f.printLn('\t,compileOnly : '+w.compileOnly);
-		f.printLn('\t,definedBy : "'+w.definedBy+'"');
-		f.printLn('\t,iInp : '+w.iInp);
-		f.printLn('\t,srcBgn : '+w.srcBgn);
-		f.printLn('\t,srcEnd : '+w.srcEnd);
-		f.printLn('\t,code : '+w.code);
-		if( w.parm ){
-			if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
-				f.printLn( '\t,parm : ' );
-				f.printLn( '\t\t{'+w.parm.map(( w, i ) => {
-					var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
-					return i + ' : ' + t; 
-				}).join( '\n\t\t,' ) );
-				f.printLn('\t\t,length : '+w.parm.length+'\n\t\t}');
-			} else {
-				f.printLn( '\t,parm : ' + JSON.stringify( w.parm ) );
-			}
+	f.dStk.push( w ),f.dict['(see)'].code();
+	f.printLn('f.dict["'+w.name+'"] : ');
+	f.printLn('{\t  id : '+w.id);
+	f.printLn('\t, name : "'+w.name+'"');
+	if(w.immediate)f.printLn('\t, immediate : '+w.immediate);
+	if(w.compileOnly)f.printLn('\t, compileOnly : '+w.compileOnly);
+	f.printLn('\t, definedBy : "'+w.definedBy+'"');
+	f.printLn('\t, iInp : '+w.iInp);
+	f.printLn('\t, srcBgn : '+w.srcBgn);
+	f.printLn('\t, srcEnd : '+w.srcEnd);
+	f.printLn('\t, code : '+w.code);
+	if( w.parm ){
+		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
+			f.printLn( '\t, parm : ' );
+			f.printLn( '\t\t{ '+w.parm.map(( w, i ) => {
+				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
+				return i + ' : ' + t; 
+			}).join( '\n\t\t, ' ) );
+			f.printLn('\t\t, length : '+w.parm.length+'\n\t\t}');
+		} else {
+			f.printLn( '\t, parm : ' + JSON.stringify( w.parm ) );
 		}
-		f.printLn('}');
-		if( w.definedBy == 'variable' )
-			f.printLn( 'f.ram[' + w.parm + '] : ' + JSON.stringify( f.ram[w.parm] ) );
+	}
+	f.printLn('}');
+	if( w.definedBy == 'variable' )
+		f.printLn( 'f.ram[' + w.parm + '] : ' + JSON.stringify( f.ram[w.parm] ) );
 	end-code
-f.dict["(seeWord)"]: 
-{	 id : 126
-	,name : "(seeWord)"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 8636
-	,srcEnd : 9659
-	,code : function(){
+f.dict["(seeWord)"] : 
+{	  id : 126
+	, name : "(seeWord)"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 8676
+	, srcEnd : 9743
+	, code : function(){
+		// ( w -- )
 		var w=f.dStk.pop();
-			f.dStk.push( w ),f.dict['(see)'].code();
-		f.printLn('f.dict["'+w.name+'"]: ');
-		f.printLn('\t{id : '+w.id);
-		f.printLn('\t,name : "'+w.name+'"');
-		if(w.immediate)f.printLn('\t,immediate : '+w.immediate);
-		if(w.compileOnly)f.printLn('\t,compileOnly : '+w.compileOnly);
-		f.printLn('\t,definedBy : "'+w.definedBy+'"');
-		f.printLn('\t,iInp : '+w.iInp);
-		f.printLn('\t,srcBgn : '+w.srcBgn);
-		f.printLn('\t,srcEnd : '+w.srcEnd);
-		f.printLn('\t,code : '+w.code);
+		f.dStk.push( w ),f.dict['(see)'].code();
+		f.printLn('f.dict["'+w.name+'"] : ');
+		f.printLn('{\t  id : '+w.id);
+		f.printLn('\t, name : "'+w.name+'"');
+		if(w.immediate)f.printLn('\t, immediate : '+w.immediate);
+		if(w.compileOnly)f.printLn('\t, compileOnly : '+w.compileOnly);
+		f.printLn('\t, definedBy : "'+w.definedBy+'"');
+		f.printLn('\t, iInp : '+w.iInp);
+		f.printLn('\t, srcBgn : '+w.srcBgn);
+		f.printLn('\t, srcEnd : '+w.srcEnd);
+		f.printLn('\t, code : '+w.code);
 		if( w.parm ){
 			if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
-				f.printLn( '\t,parm : ' );
-				f.printLn( '\t\t{'+w.parm.map(( w, i ) => {
+				f.printLn( '\t, parm : ' );
+				f.printLn( '\t\t{ '+w.parm.map(( w, i ) => {
 					var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
 					return i + ' : ' + t; 
-				}).join( '\n\t\t,' ) );
-				f.printLn('\t\t,length : '+w.parm.length+'\n\t\t}');
+				}).join( '\n\t\t, ' ) );
+				f.printLn('\t\t, length : '+w.parm.length+'\n\t\t}');
 			} else {
-				f.printLn( '\t,parm : ' + JSON.stringify( w.parm ) );
+				f.printLn( '\t, parm : ' + JSON.stringify( w.parm ) );
 			}
 		}
 		f.printLn('}');
@@ -2441,36 +2518,37 @@ f.dict["(seeWord)"]:
 	}
 }
 W127 code seeAllWords ( -- )
-		for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
+	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
 	end-code
-f.dict["seeAllWords"]: 
-{	 id : 127
-	,name : "seeAllWords"
-	,definedBy : "code"
-	,iInp : 0
-	,srcBgn : 9661
-	,srcEnd : 9777
-	,code : function(){
+f.dict["seeAllWords"] : 
+{	  id : 127
+	, name : "seeAllWords"
+	, definedBy : "code"
+	, iInp : 0
+	, srcBgn : 9745
+	, srcEnd : 9861
+	, code : function(){
+		// ( -- )
 		for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }
 	}
 }
 W128 : seeWord ( <name> -- ) ' (seeWord) ;
-f.dict["seeWord"]: 
-{	 id : 128
-	,name : "seeWord"
-	,definedBy : ":"
-	,iInp : 0
-	,srcBgn : 9780
-	,srcEnd : 9817
-	,code : function doCol(){		// colon word handler
+f.dict["seeWord"] : 
+{	  id : 128
+	, name : "seeWord"
+	, definedBy : ":"
+	, iInp : 0
+	, srcBgn : 9864
+	, srcEnd : 9901
+	, code : function doCol(){		// colon word handler
 		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
 	}
-	,parm:
-		{0 : W63 '
-		,1 : W126 (seeWord)
-		,2 : W10 doRet
-		,length : 3
+	, parm : 
+		{ 0 : W63 '
+		, 1 : W126 (seeWord)
+		, 2 : W10 doRet
+		, length : 3
 		}
 }

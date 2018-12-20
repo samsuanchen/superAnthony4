@@ -3,19 +3,18 @@ f.defaultScript = `
 	if( js==undefined ) 
 		f.panic( 'end-code not given' ); 
 	var w = f.createWord( name ); 
-    var code = "", a; 
+	var a, code = "_ = function(){\\n"; 
 	if( args ){ 
-		code += "// ( " + args + " )\\n";
+		code += "\\t\\t// ( " + args + " )\\n";
 		a = f.analizeArgs( args );
 	} 
-	var code = "_fun_ = function(){\\n"; 
 	if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
-	if( js.length ) code += "\\t" + js + "\\n";
+	if( js.length ) code += ('\\t'+js).split(/\\r?\\n/).map(l=>'\\t'+l).filter(l=>l.trim().length).join('\\n') + "\\n";
 	if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
 	code += "\\t}"; 
 	try { 
-		var _fun_; eval( code );
-		w.code = _fun_, f.addWord( w ); 
+		var _; eval( code );
+		w.code = _, f.addWord( w ); 
 	} catch ( err ) { 
 		f.printLn( 'eval("' + code + '")' ); 
 		f.panic( err ) 
@@ -195,31 +194,31 @@ f.defaultScript = `
  
  code (seeWord) ( w -- )
 	f.dStk.push( w ),f.dict['(see)'].code();
-	f.printLn('f.dict["'+w.name+'"]: ');
-	f.printLn('\\t{id:'+w.id);
-	f.printLn('\\t,name:"'+w.name+'"');
-	if(w.immediate)f.printLn('\\t,immediate:'+w.immediate);
-	if(w.compileOnly)f.printLn('\\t,compileOnly:'+w.compileOnly);
-	f.printLn('\\t,definedBy:"'+w.definedBy+'"');
-	f.printLn('\\t,iInp:'+w.iInp);
-	f.printLn('\\t,srcBgn:'+w.srcBgn);
-	f.printLn('\\t,srcEnd:'+w.srcEnd);
-	f.printLn('\\t,code:'+w.code);
+	f.printLn('f.dict["'+w.name+'"] : ');
+	f.printLn('{\\t  id : '+w.id);
+	f.printLn('\\t, name : "'+w.name+'"');
+	if(w.immediate)f.printLn('\\t, immediate : '+w.immediate);
+	if(w.compileOnly)f.printLn('\\t, compileOnly : '+w.compileOnly);
+	f.printLn('\\t, definedBy : "'+w.definedBy+'"');
+	f.printLn('\\t, iInp : '+w.iInp);
+	f.printLn('\\t, srcBgn : '+w.srcBgn);
+	f.printLn('\\t, srcEnd : '+w.srcEnd);
+	f.printLn('\\t, code : '+w.code);
 	if( w.parm ){
 		if( Array.isArray( w.parm ) && typeof( w.parm[0] ) == 'object' && w.parm[0].id ){
-			f.printLn( '\\t,parm:' );
-			f.printLn( '\\t\\t{'+w.parm.map(( w, i ) => {
+			f.printLn( '\\t, parm : ' );
+			f.printLn( '\\t\\t{ '+w.parm.map(( w, i ) => {
 				var t = typeof( w ) == 'object' ? ( 'W' + w.id + ' ' + w.name ) : w;
-				return i + ':' + t; 
-			}).join( '\\n\\t\\t,' ) );
-			f.printLn('\\t\\t,length:'+w.parm.length+'\\n\\t\\t}');
+				return i + ' : ' + t; 
+			}).join( '\\n\\t\\t, ' ) );
+			f.printLn('\\t\\t, length : '+w.parm.length+'\\n\\t\\t}');
 		} else {
-			f.printLn( '\\t,parm:' + JSON.stringify( w.parm ) );
+			f.printLn( '\\t, parm : ' + JSON.stringify( w.parm ) );
 		}
 	}
 	f.printLn('}');
 	if( w.definedBy == 'variable' )
-		f.printLn( 'f.ram[' + w.parm + ']:' + JSON.stringify( f.ram[w.parm] ) );
+		f.printLn( 'f.ram[' + w.parm + '] : ' + JSON.stringify( f.ram[w.parm] ) );
 	end-code
  code seeAllWords ( -- )
 	for( name in f.dict ){ f.dStk.push( f.dict[name] ), f.dict["(seeWord)"].code(); }

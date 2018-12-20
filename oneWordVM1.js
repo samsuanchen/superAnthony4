@@ -169,6 +169,8 @@ const OneWordVM = function OneWordVM () {
 		var m = t.match( regexp );
 		if( ! m ) return undefined;
 		f.ram[f.toIn] += m[0].length;
+		if( m[2] && m[2]=='\n' )
+			f.ram[f.toIn] --, console.log("'m[2]' in f.getTokenx()"); // m[2]=='\n'
 		return m[1].trim();
 	}
 	f.toString = function toString( number, base ){
@@ -265,10 +267,10 @@ const OneWordVM = function OneWordVM () {
 		return {pt:pt,ao:ao};
 	}
 	f.getArgs = function( pt ){ // all input args values and output names
-		return "\tvar " + pt.join() + ";\n";
+		return "\t\tvar " + pt.join() + ";\n";
 	}
 	f.setArgs = function( ao ){ // all output args values
-		return "\t" + ao.map( function(no){
+		return "\t\t" + ao.map( function(no){
 			var s = '', m = no.match(/^(i:)?(.+)$/); // interpretive mode only
 			if( m[1] )
 				s += "if(!f.compiling)";
@@ -277,78 +279,27 @@ const OneWordVM = function OneWordVM () {
 		}).join( ";" ) + "\n";
 	}
 	f.code = function code(){
-		var name = f.getToken(), args = f.getTokenx( '(', ')' );
-		if( name=='(')
-			console.log("name=='(' in f.code()");
-		var js = f.getToken( 'end-code' );
-		if( js==undefined )
-			panic( 'end-code not given' );
+		var name = f.getToken(), args = f.getTokenx( '(', ')' ), js = f.getToken( 'end-code' );
+		if( js==undefined ) 
+			f.panic( 'end-code not given' ); 
 		var w = f.createWord( name );
-		var code = "";
-		if( args ){
-			code += "// ( " + args + " )\n";
-			
-			var a = args.split( /\s*--\s*/ );			//  split input/output
-			var ai = a[0].split( /\s+/ );				//  input args
-			var ao = a[1] ? a[1].split( /\s+/ ) : a[1];	// output args
-			var vi = {};								//  input var names
-			var vo = {};								// output var names
-			var vt = [];								//  input var from f.tib
-			var vd = [];								//  input var from f.dStk
-			
-			var ni, lst = ai;
-			ai.forEach( function(ni){
-				m = ni.match( /^((.*?)<)?([a-zA-Z][a-zA-Z0-9]*)(>(.*?))?$/ );
-				if( ! m ) return;
-				vi[m[3]]=true; 
-				if( m[2] && m[5] )
-					vt.push( m[3] + "=f.getTokenx('" + m[2] + "','" + m[5] + "')" );
-				else if( m[5] ){
-					var m5 = m[5].replace('\\','\\\\');
-					vt.push( m[3] + "=f.getToken('" + m5 + "')" ); }
-				else if( m[4] )
-					vt.push( m[3] + "=f.getToken()" );
-				else
-					vd.push( ni + "=f.dStk.pop()" );
-			});
-			var s; while( s = vd.pop() ) vt.push( s );
-			if( ao ){
-				ao.forEach( no => {
-					m = no.match(/^(i:)?([a-zA-Z][a-zA-Z0-9]*)$/);
-					if( m ) {
-						if ( ! vi[m[2]] )
-							vo[m[2]] = true;
-					}
-				} );
-			}
-			Object.keys(vo).forEach( no => vt.push(no) );
-		} // else
-		  // f.printLn('(! args) in code()');
-		
-		var _fun_;
-		var code = "_fun_ = function _fun_(){\n";
-		if( args ){ // before js
-			if( vt.length )
-				code += "var " + vt.join() + ";\n";
-		}
-		code += js;
-		if( args ){ // after js
-			code += ( ao ? ( "\n" + ao.map( function(no){
-				var s = '', m = no.match(/^(i:)?(.+)$/);
-				if( m[1] )
-					s += "if(!f.compiling)";
-				s += "f.dStk.push(" + m[2] + ")";
-				return s;
-			}).join(";") ) : "" );
-		}
-		code += "\n}";
-
-		try {
-			eval( code ); w.code = _fun_, f.addWord( w );
-		} catch ( err ) {
-			f.printLn( 'eval("' + code + '")' );
-			f.panic( err )
-		}
+		var a, code = "_ = function(){\n"; 
+		if( args ){ 
+			code += "\t\t// ( " + args + " )\n";
+			a = f.analizeArgs( args );
+		} 
+		if( a && a.pt.length ) code += f.getArgs( a.pt ); // get all input values and output names
+		if( js.length )
+			code += ('\t\t'+js).split(/\r?\n/).map(l=>'\t'+l).filter(l=>l.trim().length).join('\n') + "\n";
+		if( a && a.ao ) code += f.setArgs( a.ao ); // set all output values
+		code += "\t}"; 
+		try { 
+			var _; eval( code );
+			w.code = _, f.addWord( w ); 
+		} catch ( err ) { 
+			f.printLn( 'eval("' + code + '")' ); 
+			f.panic( err ) 
+		} 
 	}
 	var src=f.code.toString();
 	var w={
@@ -389,7 +340,7 @@ const OneWordVM = function OneWordVM () {
 		while( f.token = token = f.getToken() ){
 			var w, n;
 			if( f.word = w = f.dict[f.token] ){
-				if( w.immediate || ! f.compiling ){		// 1. execute other type word
+				if( w.immediate || ! f.compiling ){		// 1. execute word
 					f.executeWord(w);
 				} else									// 2. compile word
 					f.compileWord(w);
@@ -404,7 +355,7 @@ const OneWordVM = function OneWordVM () {
 			}
 		}
 	}
-	f.printLn( "javascript oneWordVm 20181212 samsuanchen@gmail.com" );
+	f.printLn( "javascript oneWordVm 20181219 samsuanchen@gmail.com" );
 	return f;
 } // OneWordVM
 const f = new OneWordVM();
