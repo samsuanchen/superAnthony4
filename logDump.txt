@@ -1,4 +1,4 @@
-javascript oneWordVm 20181219 samsuanchen@gmail.com
+javascript oneWordVm 20181220 samsuanchen@gmail.com
 inp 0 > `
  code code ( <name> (<args>) <js>end-code -- ) // note!! in string doubleBackSlashs means one backSlash
 	if( js==undefined ) 

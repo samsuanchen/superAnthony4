@@ -355,7 +355,7 @@ const OneWordVM = function OneWordVM () {
 			}
 		}
 	}
-	f.printLn( "javascript oneWordVm 20181219 samsuanchen@gmail.com" );
+	f.printLn( "javascript oneWordVm 20181220 samsuanchen@gmail.com" );
 	return f;
 } // OneWordVM
 const f = new OneWordVM();
