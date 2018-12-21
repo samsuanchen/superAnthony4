@@ -174,12 +174,9 @@ def W60 literal
 def W61 execute
 def W62 find
 def W63 '
-'m[2]' in f.getTokenx()
 def W64 words
 def W65 (see)
-'m[2]' in f.getTokenx()
 def W66 seeAll
-'m[2]' in f.getTokenx()
 def W67 alias
 def W68 >
 def W69 <
@@ -209,7 +206,6 @@ def W92 (to)
 def W93 (+to)
 def W94 compiling
 def W95 ."
-'m[2]' in f.getTokenx()
 def W96 $"
 def W97 see
 def W98 ?
@@ -240,9 +236,7 @@ def W122 [compile]
 def W123 to
 def W124 +to
 def W125 .s
-'m[2]' in f.getTokenx()
 def W126 (seeWord)
-'m[2]' in f.getTokenx()
 def W127 seeAllWords
 def W128 seeWord
 enter "words" should print the following: 

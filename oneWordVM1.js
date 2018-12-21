@@ -170,7 +170,7 @@ const OneWordVM = function OneWordVM () {
 		if( ! m ) return undefined;
 		f.ram[f.toIn] += m[0].length;
 		if( m[2] && m[2]=='\n' )
-			f.ram[f.toIn] --, console.log("'m[2]' in f.getTokenx()"); // m[2]=='\n'
+			f.ram[f.toIn] --;
 		return m[1].trim();
 	}
 	f.toString = function toString( number, base ){
