@@ -76,10 +76,22 @@ const OneWordVM = function OneWordVM () {
 	f.doVal = function doVal(){		// value word handler
 		f.dStk.push(f.word.parm);
 	}
+	f.doColWord = function doColWord(){
+		if( ! f.head ) return
+		f.executeWord( f.head.parm[f.head.ip++] );
+		f.doColWord();
+	}
+	f.doColCall = function doColCall(){
+		f.rStk.push( f.head ), f.word.ip = 0, f.head = f.word, f.callingLevel++;
+		f.doColWord();
+	}
 	f.doCol = function doCol(){		// colon word handler
-		var w = f.word; f.rStk.push( f.head ), w.ip = 0, f.head = w, f.callingLevel++;
+//		f.doColCall();
+//	/*
+		f.rStk.push( f.head ), f.word.ip = 0, f.head = f.word, f.callingLevel++;
 		while( f.head )
 			f.executeWord( f.head.parm[f.head.ip++] );
+//	*/
 	}
 	f.doRet = function doRet(){		// return from calling colon word
 		f.head = f.rStk.pop(), f.callingLevel--;
@@ -139,7 +151,7 @@ const OneWordVM = function OneWordVM () {
 		f.dict[w.name] = w;
 		w.src = f.tib.substring(f.last.srcBgn,f.ram[f.toIn]).trim();
 		w.srcEnd = f.last.srcBgn + w.src.length;
-		w.iInp = f.nInp - 1;
+		w.iInp = f.inps.length - 1;
 	}
 	f.getToken = function getToken( delimiter ) { // parse next token from tib by given delimiter
 		var delimiter = delimiter || ' ';
@@ -311,7 +323,7 @@ const OneWordVM = function OneWordVM () {
 				// New words can be defined by "code" in javascript via f.eval() later.
 		"code": w
 	};
-	f.inps = [], f.nInp = 0;
+	f.inps = [];
 	f.toData = function toData( token ) {
 		var data, n;
 		if( f.isNotANumber( token ) ) {
@@ -331,11 +343,43 @@ const OneWordVM = function OneWordVM () {
 			n = parseFloat( token );
 		return n
 	}
+	f.evalToken = function evalToken(){
+		var token;
+		f.token = token = f.getToken();
+		if( token ){
+			var w, n;
+			if( f.word = w = f.dict[f.token] ){
+				if( w.immediate || ! f.compiling ){		// 1. execute word
+					f.executeWord(w);
+				} else									// 2. compile word
+					f.compileWord(w);
+			} else {
+				var n = f.toData( token );
+				if( n == undefined )					// 3. abort if token is not data
+					f.panic( "unDef "+token );
+				if( f.compiling )						// 4. compile data into colon definition
+					f.compileNumber( n );
+				else 									// 5. push data onto data stack
+					f.numberToStack( n );
+			}
+			requestAnimFrame( f.evalToken );
+		} else
+			console.timeEnd( 'f.evalSetup()' );
+	}
+	f.evalSetup = function evalSetup( tib ) { // evaluate given script in tib
+		console.time('f.evalSetup()');
+		f.tib = tib = tib || f.defaultScript;
+		f.printLn( "inp " + f.inps.length + " > `" + tib + "`" );
+		f.inps.push( tib );
+		f.ram[f.toIn] = 0, f.rStk = [], f.compiling = f.errorMessage = false;
+		f.evalToken();
+	}
 	f.eval = function eval(tib) { // evaluate given script in tib
-		tib = tib || f.defaultScript;
+		console.time('f.eval()');
+		f.tib = tib = tib || f.defaultScript;
+		f.printLn( "inp " + f.inps.length + " > `" + tib + "`" );
 		f.inps.push(tib);
-		f.printLn("inp "+(f.nInp++)+" > `"+tib+"`");
-		f.tib = tib || "", f.ram[f.toIn] = 0, f.rStk=[], f.compiling = f.errorMessage = false;
+		f.ram[f.toIn] = 0, f.rStk=[], f.compiling = f.errorMessage = false;
 		var token;
 		while( f.token = token = f.getToken() ){
 			var w, n;
@@ -354,6 +398,7 @@ const OneWordVM = function OneWordVM () {
 					f.numberToStack( n );
 			}
 		}
+		console.timeEnd( 'f.eval()' );
 	}
 	f.printLn( "javascript oneWordVm 20181220 samsuanchen@gmail.com" );
 	return f;
