@@ -23,7 +23,8 @@
 
 ## D) oneWordVM1.js
 
-   oneWordVM1.js 中 f = new oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
+   在 superAnthony4.html 中的　<script src="oneWordVM1.js"></script> 會自動載入 
+   oneWordVM1.js 其中的 f = new oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
    的 TOP FORTH 核心引擎。 這僅有的指令叫作 "code", 有了這指令 就可 定義出許多新指令 (Forth Word) 分別去執行 任何形式的 js code。
 
 ## E) f.eval(script)
