@@ -28,6 +28,9 @@
    其中的 f = new oneWordVM(); 這 js 指令 預設 f 為僅有 1 個指令 (Forth Word)  
    的 TOP FORTH 核心引擎。 這僅有的指令叫作 "code", 有了這指令 就可 定義出許多新指令 (Forth Word) 分別去執行 任何形式的 js code。
 
+   如果在 windows 用 chrome 瀏覽器開啟 superAnthony4.html, 可按 F12 打開 瀏覽器 的 js console, 見到 forth 的輸出。 在機器人
+   下方有輸入格, 可下 forth 指令。 如果輸入格是空的, 直接按 「eval forth or js」 鈕 或 「Enter」 鍵, 將自動載入 129 個指令。
+
 ## E) f.eval(script)
 
    f.eval(script) 這 js 指令 將 script 存到 輸入暫存區 f.tib, 然後 依序取 以 white space 區隔的
