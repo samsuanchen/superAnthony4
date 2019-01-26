@@ -382,55 +382,55 @@ I am trying to draw a 3D robot so called Super Anthony animated via webGL progra
 
 ## provide a one word VM, in oneWordVM.js
 
-### ### an instence f of the one word VM uses js console as output device
-### ### use fuction key, e.g. f12 for chrome, to open a js console
-### ### f.eval(script) gives the f a script to execute
-#### $$$$ f.eval parses tokens from script, (taking white space as delimiter)
-#### $$$$ if token is a word name in dictionary, f.dict, f executes the word
-#### $$$$ if token is a number, interger or float, f pushs the it onto data stack, f.dStk
-#### $$$$ if token is a js object, f pushs the object onto data stack, f.dStk
-#### $$$$ else f reports the token as unDef
-#### $$$$ e.g. f.eval('1.2 3')
+### 1. an instence f of the one word VM uses js console as output device
+### 2. use fuction key, e.g. f12 for chrome, to open a js console
+### 3. f.eval(script) gives the f a script to execute
+#### 3.1 f.eval parses tokens from script, (taking white space as delimiter)
+#### 3.2 if token is a word name in dictionary, f.dict, f executes the word
+#### 3.3 if token is a number, interger or float, f pushs the it onto data stack, f.dStk
+#### 3.4 if token is a js object, f pushs the object onto data stack, f.dStk
+#### 3.5 else f reports the token as unDef
+#### 3.6 e.g. f.eval('1.2 3')
 The given script '1.2 3' pushs two numbers 1.2 and 3 onto data stack, f.dStk
-#### $$$$ e.g. f.eval('code + var x=f.dStk.pop(); f.dStk.push(f.dStk.pop()+x); end-code')
+#### 3.7 e.g. f.eval('code + var x=f.dStk.pop(); f.dStk.push(f.dStk.pop()+x); end-code')
 The given script defines + as the name of word to do f.dStk.push(f.dStk.pop()+f.dStk.pop());
 Pops two numbers from stack, e.g. 1.2 and 3, adds them as sum, e.g. 4.2, pushs it onto stack
-#### $$$$ e.g. f.eval('code . f.print(f.dStk.pop()); end-code')
+#### 3.8 e.g. f.eval('code . f.print(f.dStk.pop()); end-code')
 The given script defines . as the name of word to do f.print(f.dStk.pop());
 Pops a data (number or js object) from stack, e.g. 4.2, print the data
-#### $$$$ e.g. f.eval('1.2 3 + .')
+#### 3.9 e.g. f.eval('1.2 3 + .')
 Two numbers 1.2 and 3 are added, then print the sum 4.2
-#### $$$$ e.g. f.eval('"data1" . "data" 2 + .')
+#### 3.10 e.g. f.eval('"data1" . "data" 2 + .')
 String "data1" is printed first, then "data" and 2 are added, then print the result string "data2"
-#### $$$$ e.g. f.eval()
+#### 3.11 e.g. f.eval()
 Default script is given to add 123 words into dictionary f.dict
-### ### f.dict[wordName] and f.dStk[i]
+### 4. f.dict[wordName] and f.dStk[i]
 
-### ### the word w in f.dict
-#### $$$$ primitive word, the word code or the word of w.definedBy="code"
-##### ***** w.name
-##### ***** w.code
-#### $$$$ other word types, each of same w.code but differnt w.parm
-##### ***** constant word, w.code=f.doCon and w.definedBy="constant"
-##### ***** value word, w.code=f.doVal and w.definedBy="value"
-##### ***** variable word, w.code=f.doVar and w.definedBy="variable"
-##### ***** colon word, w.code=f.doCol and w.definedBy=":"
-#### $$$$ compilation and execution of the colon word 
-##### ***** w.immediate
-##### ***** w.compileOnly
-##### ***** f.rStk[i]
-#### $$$$ other word attributes
-##### ***** w.id
-##### ***** w.src
-##### ***** w.iInp
-##### ***** w.srcBgn
-##### ***** w.srcEnd
-### ### testing and checking
-#### $$$$ f.eval(script)
-#### $$$$ f.dStk
-#### $$$$ w=f.dict[wordName]
-#### $$$$ f.execute(w) 
-#### $$$$ f.word=w and w.code()
-#### $$$$ w.src
-#### $$$$ f.tracing=true
+### 5. the word w in f.dict
+#### 5.1 primitive word, the word code or the word of w.definedBy="code"
+##### 5.1.1 w.name
+##### 5.1.2 w.code
+#### 5.2 other word types, each of same w.code but differnt w.parm
+##### 5.2.1 constant word, w.code=f.doCon and w.definedBy="constant"
+##### 5.2.2 value word, w.code=f.doVal and w.definedBy="value"
+##### 5.2.3 variable word, w.code=f.doVar and w.definedBy="variable"
+##### 5.2.4 colon word, w.code=f.doCol and w.definedBy=":"
+#### 5.3 compilation and execution of the colon word 
+##### 5.3.1 w.immediate
+##### 5.3.2 w.compileOnly
+##### 5.3.3 f.rStk[i]
+#### 5.4 other word attributes
+##### 5.4.1 w.id
+##### 5.4.2 w.src
+##### 5.4.3 w.iInp
+##### 5.4.4 w.srcBgn
+##### 5.4.5 w.srcEnd
+### 6. testing and checking
+#### 6.1 f.eval(script)
+#### 6.2 f.dStk
+#### 6.3 w=f.dict[wordName]
+#### 6.4 f.execute(w) 
+#### 6.5 f.word=w and w.code()
+#### 6.6 w.src
+#### 6.7 f.tracing=true
 
